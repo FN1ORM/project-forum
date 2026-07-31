@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { getQuestionById } from '@/utils/data/questions'
+import { getQuestionById, markQuestionSolved } from '@/utils/data/questions'
 import { getAnswersByQuestion, createAnswer } from '@/utils/data/answers'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
@@ -34,6 +34,20 @@ export default async function QuestionPage({
   const subjectSlug = validQuestion.subjects?.slug
   const subjectName = validQuestion.subjects?.name
 
+  let userProfile = null;
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
+    userProfile = data;
+  }
+
+  const hasPermission = userProfile && (
+    validQuestion.author_id === userProfile.id || 
+    userProfile.role === 'teacher' || 
+    userProfile.role === 'admin'
+  );
+
   async function submitAnswer(formData: FormData) {
     'use server'
     
@@ -63,6 +77,31 @@ export default async function QuestionPage({
     redirect(`/questions/${validQuestion.id}`)
   }
 
+  async function handleMarkSolved() {
+    'use server'
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return;
+    
+    const { data: profile } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
+    if (!profile) return;
+    
+    const canSolve = validQuestion.author_id === profile.id || profile.role === 'teacher' || profile.role === 'admin'
+    if (!canSolve) {
+       console.error("Unauthorized to mark as solved")
+       return;
+    }
+
+    try {
+      await markQuestionSolved(validQuestion.id, profile.id)
+    } catch (e) {
+      console.error(e)
+      return
+    }
+
+    redirect(`/questions/${validQuestion.id}`)
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8 sm:p-16">
       <div className="max-w-3xl w-full mx-auto">
@@ -73,15 +112,33 @@ export default async function QuestionPage({
         </div>
         
         <div className="mb-12 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-          <h1 className="text-3xl font-bold text-black dark:text-white mb-4">
-            {validQuestion.title}
-          </h1>
-          <div className="text-sm text-zinc-500 mb-6">
-            Asked by: {validQuestion.author?.display_name}
+          <div className="flex justify-between items-start gap-4">
+            <h1 className="text-3xl font-bold text-black dark:text-white mb-4">
+              {validQuestion.title}
+            </h1>
+            {validQuestion.is_solved && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 whitespace-nowrap">
+                ✓ Solved
+              </span>
+            )}
           </div>
-          <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+          <div className="text-sm text-zinc-500 mb-6 flex flex-col gap-1">
+            <span>Asked by: {validQuestion.author?.display_name}</span>
+            {validQuestion.is_solved && validQuestion.solver?.display_name && (
+              <span className="text-green-700 dark:text-green-400">Solved by: {validQuestion.solver.display_name}</span>
+            )}
+          </div>
+          <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap mb-6">
             {validQuestion.body}
           </p>
+
+          {!validQuestion.is_solved && hasPermission && (
+             <form action={handleMarkSolved}>
+               <button type="submit" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium transition-colors">
+                 Mark as Solved
+               </button>
+             </form>
+          )}
         </div>
 
         <h2 className="text-2xl font-bold text-black dark:text-white mb-6">

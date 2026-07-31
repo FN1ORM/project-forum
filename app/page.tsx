@@ -8,8 +8,11 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser()
   
   let subjects: any[] = []
+  let profile = null
   if (user) {
     try {
+      const { data } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+      profile = data
       subjects = await getSubjects()
     } catch (error) {
       console.error(error)
@@ -22,7 +25,7 @@ export default async function Home() {
         {user ? (
           <div className="flex flex-col gap-4 w-full">
             <h1 className="text-3xl font-semibold text-black dark:text-white">
-              Welcome,
+              Welcome, {profile?.display_name || ''}
             </h1>
             <p className="text-xl text-zinc-600 dark:text-zinc-400">
               {user.email}

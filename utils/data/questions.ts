@@ -4,7 +4,7 @@ export async function getQuestionsBySubject(subjectId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('*, author:profiles(display_name)')
+    .select('*, author:profiles!author_id(display_name)')
     .eq('subject_id', subjectId)
     .order('created_at', { ascending: false })
   
@@ -40,7 +40,7 @@ export async function getQuestionById(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('id, title, body, created_at, subject_id, subjects(slug, name), author:profiles(display_name)')
+    .select('id, title, body, created_at, subject_id, subjects(slug, name), author_id, author:profiles!author_id(display_name), is_solved, solved_at, solved_by, solver:profiles!solved_by(display_name)')
     .eq('id', id)
     .single()
   
@@ -49,6 +49,26 @@ export async function getQuestionById(id: string) {
       return null
     }
     throw new Error(`Failed to fetch question: ${error.message}`)
+  }
+  
+  return data
+}
+
+export async function markQuestionSolved(questionId: string, solvedBy: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('questions')
+    .update({
+      is_solved: true,
+      solved_at: new Date().toISOString(),
+      solved_by: solvedBy
+    })
+    .eq('id', questionId)
+    .select()
+    .single()
+    
+  if (error) {
+    throw new Error(`Failed to mark question as solved: ${error.message}`)
   }
   
   return data

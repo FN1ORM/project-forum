@@ -51,7 +51,14 @@ export default async function SubjectPage({
           {questions.length > 0 ? (
             questions.map((q) => (
               <Link key={q.id} href={`/questions/${q.id}`} className="block p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-                <h3 className="font-semibold text-lg text-black dark:text-white mb-2">{q.title}</h3>
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h3 className="font-semibold text-lg text-black dark:text-white">{q.title}</h3>
+                  {q.is_solved && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 whitespace-nowrap">
+                      ✓ Solved
+                    </span>
+                  )}
+                </div>
                 <p className="text-zinc-600 dark:text-zinc-400 line-clamp-2">{q.body}</p>
                 <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
                   <span>Asked by: {q.author?.display_name}</span>
