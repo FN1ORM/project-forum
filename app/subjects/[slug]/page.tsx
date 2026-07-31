@@ -62,7 +62,10 @@ export default async function SubjectPage({
                 <p className="text-zinc-600 dark:text-zinc-400 line-clamp-2">{q.body}</p>
                 <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
                   <span>Asked by: {q.author?.display_name}</span>
-                  <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium text-black dark:text-white">▲ {q.voteCount}</span>
+                    <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </Link>
             ))

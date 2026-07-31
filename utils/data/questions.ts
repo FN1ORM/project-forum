@@ -4,7 +4,7 @@ export async function getQuestionsBySubject(subjectId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('*, author:profiles!author_id(display_name)')
+    .select('*, author:profiles!author_id(display_name), question_votes(count)')
     .eq('subject_id', subjectId)
     .order('created_at', { ascending: false })
   
@@ -12,7 +12,10 @@ export async function getQuestionsBySubject(subjectId: string) {
     throw new Error(`Failed to fetch questions: ${error.message}`)
   }
   
-  return data
+  return data.map(q => ({
+    ...q,
+    voteCount: q.question_votes?.[0]?.count || 0
+  }))
 }
 
 export async function createQuestion(subjectId: string, authorId: string, title: string, body: string) {
@@ -40,7 +43,7 @@ export async function getQuestionById(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('id, title, body, created_at, subject_id, subjects(slug, name), author_id, author:profiles!author_id(display_name), is_solved, solved_at, solved_by, solver:profiles!solved_by(display_name)')
+    .select('id, title, body, created_at, subject_id, subjects(slug, name), author_id, author:profiles!author_id(display_name), is_solved, solved_at, solved_by, solver:profiles!solved_by(display_name), question_votes(count)')
     .eq('id', id)
     .single()
   
@@ -51,7 +54,10 @@ export async function getQuestionById(id: string) {
     throw new Error(`Failed to fetch question: ${error.message}`)
   }
   
-  return data
+  return {
+    ...data,
+    voteCount: data.question_votes?.[0]?.count || 0
+  }
 }
 
 export async function markQuestionSolved(questionId: string, solvedBy: string) {

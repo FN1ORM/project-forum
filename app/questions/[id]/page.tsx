@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { getQuestionById, markQuestionSolved } from '@/utils/data/questions'
 import { getAnswersByQuestion, createAnswer } from '@/utils/data/answers'
+import { hasUserUpvotedQuestion, hasUserUpvotedAnswer, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 
@@ -47,6 +48,51 @@ export default async function QuestionPage({
     userProfile.role === 'teacher' || 
     userProfile.role === 'admin'
   );
+
+  let hasUpvotedQuestion = false;
+  let userUpvotedAnswers: Record<string, boolean> = {};
+  if (user) {
+    hasUpvotedQuestion = await hasUserUpvotedQuestion(validQuestion.id, user.id)
+    await Promise.all(answers.map(async (a) => {
+      userUpvotedAnswers[a.id] = await hasUserUpvotedAnswer(a.id, user.id)
+    }))
+  }
+
+  async function handleQuestionUpvote() {
+    'use server'
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return;
+    
+    // Check self-upvote on server
+    if (validQuestion.author_id === user.id) {
+       console.error("Cannot upvote your own question");
+       return;
+    }
+
+    await toggleQuestionUpvote(validQuestion.id, user.id)
+    redirect(`/questions/${validQuestion.id}`)
+  }
+
+  async function handleAnswerUpvote(formData: FormData) {
+    'use server'
+    const answerId = formData.get('answerId') as string
+    if (!answerId) return;
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return;
+
+    // Prevent self-upvote on server, query db directly
+    const { data: answerData } = await supabase.from('answers').select('author_id').eq('id', answerId).single()
+    if (!answerData || answerData.author_id === user.id) {
+       console.error("Cannot upvote your own answer");
+       return;
+    }
+
+    await toggleAnswerUpvote(answerId, user.id)
+    redirect(`/questions/${validQuestion.id}`)
+  }
 
   async function submitAnswer(formData: FormData) {
     'use server'
@@ -131,6 +177,17 @@ export default async function QuestionPage({
           <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap mb-6">
             {validQuestion.body}
           </p>
+          
+          <div className="flex items-center gap-4 mb-6">
+            <span className="font-semibold text-lg text-black dark:text-white">▲ {validQuestion.voteCount}</span>
+            {user && user.id !== validQuestion.author_id && (
+              <form action={handleQuestionUpvote}>
+                <button type="submit" className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasUpvotedQuestion ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                  {hasUpvotedQuestion ? '▲ Upvoted' : '▲ Upvote'}
+                </button>
+              </form>
+            )}
+          </div>
 
           {!validQuestion.is_solved && hasPermission && (
              <form action={handleMarkSolved}>
@@ -153,8 +210,21 @@ export default async function QuestionPage({
                   Answered by: {answer.author?.display_name}
                 </div>
                 <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">{answer.body}</p>
-                <div className="mt-4 text-xs text-zinc-500">
-                  {new Date(answer.created_at).toLocaleDateString()}
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="text-xs text-zinc-500">
+                    {new Date(answer.created_at).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-sm text-black dark:text-white">▲ {answer.voteCount}</span>
+                    {user && user.id !== answer.author_id && (
+                      <form action={handleAnswerUpvote}>
+                        <input type="hidden" name="answerId" value={answer.id} />
+                        <button type="submit" className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${userUpvotedAnswers[answer.id] ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                          {userUpvotedAnswers[answer.id] ? '▲ Upvoted' : '▲ Upvote'}
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
