@@ -35,3 +35,21 @@ export async function createQuestion(subjectId: string, authorId: string, title:
   
   return data
 }
+
+export async function getQuestionById(id: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('questions')
+    .select('id, title, body, created_at, subject_id, subjects(slug, name)')
+    .eq('id', id)
+    .single()
+  
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null
+    }
+    throw new Error(`Failed to fetch question: ${error.message}`)
+  }
+  
+  return data
+}
