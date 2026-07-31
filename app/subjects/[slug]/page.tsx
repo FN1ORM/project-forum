@@ -53,8 +53,9 @@ export default async function SubjectPage({
               <Link key={q.id} href={`/questions/${q.id}`} className="block p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                 <h3 className="font-semibold text-lg text-black dark:text-white mb-2">{q.title}</h3>
                 <p className="text-zinc-600 dark:text-zinc-400 line-clamp-2">{q.body}</p>
-                <div className="mt-4 text-xs text-zinc-500">
-                  {new Date(q.created_at).toLocaleDateString()}
+                <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
+                  <span>Asked by: {q.author?.display_name}</span>
+                  <span>{new Date(q.created_at).toLocaleDateString()}</span>
                 </div>
               </Link>
             ))

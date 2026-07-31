@@ -4,7 +4,7 @@ export async function getQuestionsBySubject(subjectId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('*')
+    .select('*, author:profiles(display_name)')
     .eq('subject_id', subjectId)
     .order('created_at', { ascending: false })
   
@@ -40,7 +40,7 @@ export async function getQuestionById(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('questions')
-    .select('id, title, body, created_at, subject_id, subjects(slug, name)')
+    .select('id, title, body, created_at, subject_id, subjects(slug, name), author:profiles(display_name)')
     .eq('id', id)
     .single()
   

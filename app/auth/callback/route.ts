@@ -17,10 +17,16 @@ export async function GET(request: Request) {
           await supabase.auth.signOut()
           return NextResponse.redirect(`${origin}/login?error=Only+IIIT+Guwahati+accounts+are+allowed.`)
         } else {
+          const displayName = user.user_metadata?.full_name 
+            || user.user_metadata?.name 
+            || user.email?.split('@')[0] 
+            || '';
+
           // Idempotently create the profile if it doesn't exist
           const { error: profileError } = await supabase.from('profiles').upsert({
             id: user.id,
             email: user.email,
+            display_name: displayName,
           }, { onConflict: 'id', ignoreDuplicates: true })
 
           if (profileError) {

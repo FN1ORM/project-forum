@@ -4,7 +4,7 @@ export async function getAnswersByQuestion(questionId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('answers')
-    .select('*')
+    .select('*, author:profiles(display_name)')
     .eq('question_id', questionId)
     .order('created_at', { ascending: true })
   

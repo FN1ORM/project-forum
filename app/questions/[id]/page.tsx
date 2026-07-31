@@ -76,6 +76,9 @@ export default async function QuestionPage({
           <h1 className="text-3xl font-bold text-black dark:text-white mb-4">
             {validQuestion.title}
           </h1>
+          <div className="text-sm text-zinc-500 mb-6">
+            Asked by: {validQuestion.author?.display_name}
+          </div>
           <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
             {validQuestion.body}
           </p>
@@ -89,6 +92,9 @@ export default async function QuestionPage({
           {answers.length > 0 ? (
             answers.map((answer) => (
               <div key={answer.id} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                <div className="text-sm font-medium text-black dark:text-white mb-2">
+                  Answered by: {answer.author?.display_name}
+                </div>
                 <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">{answer.body}</p>
                 <div className="mt-4 text-xs text-zinc-500">
                   {new Date(answer.created_at).toLocaleDateString()}
