@@ -1,9 +1,10 @@
 import { notFound, redirect } from 'next/navigation'
-import { getQuestionById, markQuestionSolved } from '@/utils/data/questions'
-import { getAnswersByQuestion, createAnswer } from '@/utils/data/answers'
+import { getQuestionById, markQuestionSolved, deleteQuestion } from '@/utils/data/questions'
+import { getAnswersByQuestion, createAnswer, deleteAnswer } from '@/utils/data/answers'
 import { hasUserUpvotedQuestion, hasUserUpvotedAnswer, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
+import { DeleteButton } from './delete-button'
 
 export default async function QuestionPage({
   params,
@@ -48,6 +49,10 @@ export default async function QuestionPage({
     userProfile.role === 'teacher' || 
     userProfile.role === 'admin'
   );
+
+  const isAuthor = user && user.id === validQuestion.author_id;
+  const isTeacherOrAdmin = userProfile && (userProfile.role === 'teacher' || userProfile.role === 'admin');
+  const canEditQuestion = (isAuthor && !validQuestion.is_solved) || isTeacherOrAdmin;
 
   let hasUpvotedQuestion = false;
   let userUpvotedAnswers: Record<string, boolean> = {};
@@ -147,6 +152,44 @@ export default async function QuestionPage({
 
     redirect(`/questions/${validQuestion.id}`)
   }
+  
+  async function handleDeleteQuestion() {
+    'use server'
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    const { data: profile } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
+    if (!profile) return
+    
+    const canDelete = validQuestion.author_id === profile.id || profile.role === 'teacher' || profile.role === 'admin'
+    if (!canDelete) return
+    
+    await deleteQuestion(validQuestion.id)
+    redirect(`/subjects/${subjectSlug}`) 
+  }
+  
+  async function handleDeleteAnswer(formData: FormData) {
+    'use server'
+    const answerId = formData.get('answerId') as string
+    if (!answerId) return
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    const { data: profile } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
+    if (!profile) return
+    
+    const { data: answerData } = await supabase.from('answers').select('author_id').eq('id', answerId).single()
+    if (!answerData) return
+    
+    const canDelete = answerData.author_id === profile.id || profile.role === 'teacher' || profile.role === 'admin'
+    if (!canDelete) return
+    
+    await deleteAnswer(answerId)
+    redirect(`/questions/${validQuestion.id}`)
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8 sm:p-16">
@@ -178,15 +221,28 @@ export default async function QuestionPage({
             {validQuestion.body}
           </p>
           
-          <div className="flex items-center gap-4 mb-6">
-            <span className="font-semibold text-lg text-black dark:text-white">▲ {validQuestion.voteCount}</span>
-            {user && user.id !== validQuestion.author_id && (
-              <form action={handleQuestionUpvote}>
-                <button type="submit" className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasUpvotedQuestion ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
-                  {hasUpvotedQuestion ? '▲ Upvoted' : '▲ Upvote'}
-                </button>
-              </form>
-            )}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <span className="font-semibold text-lg text-black dark:text-white">▲ {validQuestion.voteCount}</span>
+              {user && user.id !== validQuestion.author_id && (
+                <form action={handleQuestionUpvote}>
+                  <button type="submit" className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasUpvotedQuestion ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                    {hasUpvotedQuestion ? '▲ Upvoted' : '▲ Upvote'}
+                  </button>
+                </form>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {canEditQuestion && (
+                <Link href={`/questions/${validQuestion.id}/edit`} className="px-3 py-1.5 text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
+                  Edit
+                </Link>
+              )}
+              {userProfile && (validQuestion.author_id === userProfile.id || userProfile.role === 'teacher' || userProfile.role === 'admin') && (
+                <DeleteButton action={handleDeleteQuestion} />
+              )}
+            </div>
           </div>
 
           {!validQuestion.is_solved && hasPermission && (
@@ -214,16 +270,31 @@ export default async function QuestionPage({
                   <div className="text-xs text-zinc-500">
                     {new Date(answer.created_at).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold text-sm text-black dark:text-white">▲ {answer.voteCount}</span>
-                    {user && user.id !== answer.author_id && (
-                      <form action={handleAnswerUpvote}>
-                        <input type="hidden" name="answerId" value={answer.id} />
-                        <button type="submit" className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${userUpvotedAnswers[answer.id] ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
-                          {userUpvotedAnswers[answer.id] ? '▲ Upvoted' : '▲ Upvote'}
-                        </button>
-                      </form>
-                    )}
+                  
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      {user && user.id === answer.author_id && (
+                        <Link href={`/answers/${answer.id}/edit`} className="px-3 py-1.5 text-xs font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
+                          Edit
+                        </Link>
+                      )}
+                      {userProfile && (answer.author_id === userProfile.id || userProfile.role === 'teacher' || userProfile.role === 'admin') && (
+                        <DeleteButton action={handleDeleteAnswer}>
+                          <input type="hidden" name="answerId" value={answer.id} />
+                        </DeleteButton>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-sm text-black dark:text-white">▲ {answer.voteCount}</span>
+                      {user && user.id !== answer.author_id && (
+                        <form action={handleAnswerUpvote}>
+                          <input type="hidden" name="answerId" value={answer.id} />
+                          <button type="submit" className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${userUpvotedAnswers[answer.id] ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                            {userUpvotedAnswers[answer.id] ? '▲ Upvoted' : '▲ Upvote'}
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

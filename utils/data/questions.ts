@@ -19,6 +19,10 @@ export async function getQuestionsBySubject(subjectId: string) {
 }
 
 export async function createQuestion(subjectId: string, authorId: string, title: string, body: string) {
+  title = title.trim()
+  body = body.trim()
+  if (!title || !body) throw new Error('Title and body must not be empty')
+
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -37,6 +41,33 @@ export async function createQuestion(subjectId: string, authorId: string, title:
   }
   
   return data
+}
+
+export async function updateQuestion(questionId: string, title: string, body: string) {
+  title = title.trim()
+  body = body.trim()
+  if (!title || !body) throw new Error('Title and body must not be empty')
+  
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('questions')
+    .update({ title, body })
+    .eq('id', questionId)
+    .select()
+    .single()
+    
+  if (error) throw new Error(`Failed to update question: ${error.message}`)
+  return data
+}
+
+export async function deleteQuestion(questionId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('questions')
+    .delete()
+    .eq('id', questionId)
+    
+  if (error) throw new Error(`Failed to delete question: ${error.message}`)
 }
 
 export async function getQuestionById(id: string) {

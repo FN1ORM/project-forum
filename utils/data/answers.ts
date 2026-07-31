@@ -4,7 +4,7 @@ export async function getAnswersByQuestion(questionId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('answers')
-    .select('*, author:profiles(display_name), vote_count')
+    .select('*, author:profiles!author_id(display_name), vote_count')
     .eq('question_id', questionId)
     .order('vote_count', { ascending: false })
     .order('created_at', { ascending: true })
@@ -19,9 +19,26 @@ export async function getAnswersByQuestion(questionId: string) {
   }))
 }
 
-export async function createAnswer(questionId: string, authorId: string, body: string) {
+export async function getAnswerById(id: string) {
   const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('answers')
+    .select('*')
+    .eq('id', id)
+    .single()
+  
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw new Error(`Failed to fetch answer: ${error.message}`)
+  }
+  return data
+}
 
+export async function createAnswer(questionId: string, authorId: string, body: string) {
+  body = body.trim()
+  if (!body) throw new Error('Body must not be empty')
+  
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('answers')
     .insert({
@@ -37,4 +54,30 @@ export async function createAnswer(questionId: string, authorId: string, body: s
   }
   
   return data
+}
+
+export async function updateAnswer(answerId: string, body: string) {
+  body = body.trim()
+  if (!body) throw new Error('Body must not be empty')
+  
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('answers')
+    .update({ body })
+    .eq('id', answerId)
+    .select()
+    .single()
+    
+  if (error) throw new Error(`Failed to update answer: ${error.message}`)
+  return data
+}
+
+export async function deleteAnswer(answerId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('answers')
+    .delete()
+    .eq('id', answerId)
+    
+  if (error) throw new Error(`Failed to delete answer: ${error.message}`)
 }
