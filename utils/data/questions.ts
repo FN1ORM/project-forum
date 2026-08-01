@@ -29,34 +29,48 @@ function mapFeedQuestion(q: any) {
   }
 }
 
-export async function getGlobalFeed(sort: string = 'latest', currentUserId?: string) {
+export async function getGlobalFeed(sort: string = 'latest', currentUserId?: string, pageNumber: number = 1, pageSize: number = 10) {
   const supabase = await createClient()
-  let query = supabase.from('questions').select(feedSelect)
+  let query = supabase.from('questions').select(feedSelect, { count: 'exact' })
   
   query = applySort(query, sort, currentUserId)
   
-  const { data, error } = await query
+  const from = (pageNumber - 1) * pageSize
+  const to = from + pageSize - 1
+  query = query.range(from, to)
+  
+  const { data, error, count } = await query
   
   if (error) {
     throw new Error(`Failed to fetch global feed: ${error.message}`)
   }
   
-  return data.map(mapFeedQuestion)
+  return { 
+    questions: data.map(mapFeedQuestion), 
+    totalCount: count || 0 
+  }
 }
 
-export async function getSubjectFeed(subjectId: string, sort: string = 'latest', currentUserId?: string) {
+export async function getSubjectFeed(subjectId: string, sort: string = 'latest', currentUserId?: string, pageNumber: number = 1, pageSize: number = 10) {
   const supabase = await createClient()
-  let query = supabase.from('questions').select(feedSelect).eq('subject_id', subjectId)
+  let query = supabase.from('questions').select(feedSelect, { count: 'exact' }).eq('subject_id', subjectId)
   
   query = applySort(query, sort, currentUserId)
   
-  const { data, error } = await query
+  const from = (pageNumber - 1) * pageSize
+  const to = from + pageSize - 1
+  query = query.range(from, to)
+  
+  const { data, error, count } = await query
   
   if (error) {
     throw new Error(`Failed to fetch subject feed: ${error.message}`)
   }
   
-  return data.map(mapFeedQuestion)
+  return { 
+    questions: data.map(mapFeedQuestion), 
+    totalCount: count || 0 
+  }
 }
 
 export async function createQuestion(subjectId: string, authorId: string, title: string, body: string) {

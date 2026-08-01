@@ -5,20 +5,24 @@ import { getGlobalFeed } from '@/utils/data/questions'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SortTabs } from '@/components/ui/sort-tabs'
+import { Pagination } from '@/components/ui/pagination'
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string }>
+  searchParams: Promise<{ sort?: string; page?: string }>
 }) {
-  const { sort } = await searchParams
+  const { sort, page } = await searchParams
   const currentSort = sort || 'latest'
+  const pageNumber = parseInt(page || '1', 10)
+  const pageSize = 10
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   let subjects: any[] = []
   let questions: any[] = []
+  let totalPages = 0
   let profile = null
 
   if (user) {
@@ -26,7 +30,9 @@ export default async function Home({
       const { data } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
       profile = data
       subjects = await getSubjects()
-      questions = await getGlobalFeed(currentSort, user.id)
+      const feed = await getGlobalFeed(currentSort, user.id, pageNumber, pageSize)
+      questions = feed.questions
+      totalPages = Math.ceil(feed.totalCount / pageSize)
     } catch (error) {
       console.error(error)
     }
@@ -105,6 +111,8 @@ export default async function Home({
                   </Card>
                 )}
               </div>
+
+              <Pagination currentPage={pageNumber} totalPages={totalPages} />
             </div>
           </div>
         ) : (

@@ -2,7 +2,7 @@ import { searchQuestions } from '@/utils/data/search'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/ui/pagination'
 
 export default async function SearchPage({
   searchParams,
@@ -63,30 +63,7 @@ export default async function SearchPage({
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-8">
-            {pageNumber > 1 ? (
-              <Link href={`/search?q=${encodeURIComponent(query)}&page=${pageNumber - 1}`}>
-                <Button variant="secondary">Previous</Button>
-              </Link>
-            ) : (
-              <Button variant="secondary" disabled>Previous</Button>
-            )}
-            
-            <span className="text-sm text-muted-foreground font-medium">
-              Page {pageNumber} of {totalPages}
-            </span>
-            
-            {pageNumber < totalPages ? (
-              <Link href={`/search?q=${encodeURIComponent(query)}&page=${pageNumber + 1}`}>
-                <Button variant="secondary">Next</Button>
-              </Link>
-            ) : (
-              <Button variant="secondary" disabled>Next</Button>
-            )}
-          </div>
-        )}
+        <Pagination currentPage={pageNumber} totalPages={totalPages} />
       </div>
     </div>
   )
