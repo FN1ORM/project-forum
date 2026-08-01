@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getSubjectBySlug } from '@/utils/data/subjects'
 import { getQuestionsBySubject } from '@/utils/data/questions'
 import Link from 'next/link'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export default async function SubjectPage({
   params,
@@ -43,38 +45,38 @@ export default async function SubjectPage({
           </Link>
         </div>
         
-        <h1 className="text-4xl font-bold text-black dark:text-white mb-6">
+        <h1 className="text-4xl font-bold tracking-tight mb-6">
           {subject.name}
         </h1>
         
         <div className="flex flex-col gap-4">
           {questions.length > 0 ? (
             questions.map((q) => (
-              <Link key={q.id} href={`/questions/${q.id}`} className="block p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="font-semibold text-lg text-black dark:text-white">{q.title}</h3>
-                  {q.is_solved && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 whitespace-nowrap">
-                      ✓ Solved
-                    </span>
-                  )}
-                </div>
-                <p className="text-zinc-600 dark:text-zinc-400 line-clamp-2">{q.body}</p>
-                <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
-                  <span>Asked by: {q.author?.display_name}</span>
-                  <div className="flex items-center gap-4">
-                    <span className="font-medium text-black dark:text-white">▲ {q.voteCount}</span>
-                    <span>{new Date(q.created_at).toLocaleDateString()}</span>
+              <Link key={q.id} href={`/questions/${q.id}`}>
+                <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
+                    {q.is_solved && (
+                      <Badge variant="success" className="shrink-0">
+                        ✓ Solved
+                      </Badge>
+                    )}
                   </div>
-                </div>
+                  <p className="text-muted-foreground line-clamp-2">{q.body}</p>
+                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Asked by {q.author?.display_name}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="font-medium text-foreground">▲ {q.voteCount}</span>
+                      <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </Card>
               </Link>
             ))
           ) : (
-            <div className="p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-              <p className="text-zinc-600 dark:text-zinc-400">
-                No questions yet.
-              </p>
-            </div>
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No questions yet in this subject. Be the first to ask!</p>
+            </Card>
           )}
         </div>
       </div>

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { Input } from '@/components/ui/input'
 import { SubmitButton } from '@/components/submit-button'
+import { Card } from '@/components/ui/card'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -83,7 +84,7 @@ export default async function AdminDashboard() {
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
-        <h1 className="text-4xl font-bold text-black dark:text-white">Admin Dashboard</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
         
         {/* Search */}
         <div className="flex gap-4 mb-4">
@@ -109,22 +110,22 @@ export default async function AdminDashboard() {
         </div>
         
         {/* Users Table */}
-        <div className="overflow-x-auto bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
-                <th className="p-4 font-semibold text-sm text-black dark:text-white">Name</th>
-                <th className="p-4 font-semibold text-sm text-black dark:text-white">Email</th>
-                <th className="p-4 font-semibold text-sm text-black dark:text-white">Current Role</th>
-                <th className="p-4 font-semibold text-sm text-black dark:text-white">Actions</th>
+              <tr className="border-b border-border bg-surface-elevated/30">
+                <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
+                <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</th>
+                <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</th>
+                <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.id} className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-950/50 transition-colors">
-                  <td className="p-4 text-sm font-medium text-zinc-900 dark:text-zinc-100">{u.display_name}</td>
-                  <td className="p-4 text-sm text-zinc-600 dark:text-zinc-400">{u.email}</td>
-                  <td className="p-4 text-sm text-zinc-600 dark:text-zinc-400 capitalize">{u.role}</td>
+                <tr key={u.id} className="border-b border-border last:border-0 hover:bg-surface-elevated/30 transition-colors">
+                  <td className="p-4 text-sm font-medium text-foreground">{u.display_name}</td>
+                  <td className="p-4 text-sm text-muted-foreground">{u.email}</td>
+                  <td className="p-4 text-sm text-muted-foreground capitalize">{u.role}</td>
                   <td className="p-4">
                     {u.id !== user.id ? (
                       <form action={handleRoleChange} className="flex items-center gap-2">
@@ -143,19 +144,19 @@ export default async function AdminDashboard() {
                         </SubmitButton>
                       </form>
                     ) : (
-                      <span className="text-xs font-medium text-zinc-400 italic">Cannot change own role</span>
+                      <span className="text-xs font-medium text-muted-foreground italic">Cannot change own role</span>
                     )}
                   </td>
                 </tr>
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-zinc-500">No users found.</td>
+                  <td colSpan={4} className="p-8 text-center text-muted-foreground">No users found.</td>
                 </tr>
               )}
             </tbody>
           </table>
-        </div>
+        </Card>
       </main>
     </div>
   )

@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
+import { Card } from '@/components/ui/card'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -30,24 +31,23 @@ export default async function Home() {
               {user.email}
             </p>
             <div className="mt-8 w-full text-left">
-              <h2 className="text-2xl font-semibold text-black dark:text-white mb-6">
+              <h2 className="text-2xl font-bold tracking-tight mb-6">
                 Subjects
               </h2>
               {subjects.length > 0 ? (
-                <ul className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {subjects.map((subject) => (
-                    <li key={subject.id}>
-                      <Link 
-                        href={`/subjects/${subject.slug}`}
-                        className="block p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                      >
-                        <h3 className="font-medium text-black dark:text-white">{subject.name}</h3>
-                      </Link>
-                    </li>
+                    <Link key={subject.id} href={`/subjects/${subject.slug}`}>
+                      <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors h-full flex items-center">
+                        <h3 className="text-lg font-semibold tracking-tight">{subject.name}</h3>
+                      </Card>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p className="text-zinc-500">No subjects available.</p>
+                <Card className="p-8 text-center text-muted-foreground">
+                  <p>No subjects available at the moment.</p>
+                </Card>
               )}
             </div>
           </div>

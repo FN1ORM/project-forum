@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { DeleteButton } from './delete-button'
 import { ValidatedForm } from '@/components/validated-form'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SubmitButton } from '@/components/submit-button'
@@ -290,24 +292,24 @@ export default async function QuestionPage({
           </Link>
         </div>
         
-        <div className="mb-12 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="mb-12 p-6 sm:p-8">
           <div className="flex justify-between items-start gap-4">
-            <h1 className="text-3xl font-bold text-black dark:text-white mb-4">
+            <h1 className="text-3xl font-bold tracking-tight mb-4">
               {validQuestion.title}
             </h1>
             {validQuestion.is_solved && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 whitespace-nowrap">
+              <Badge variant="success" className="shrink-0 text-sm py-1 px-3">
                 ✓ Solved
-              </span>
+              </Badge>
             )}
           </div>
-          <div className="text-sm text-zinc-500 mb-6 flex flex-col gap-1">
+          <div className="text-sm text-muted-foreground mb-6 flex flex-col gap-1">
             <span>Asked by: {validQuestion.author?.display_name}</span>
             {validQuestion.is_solved && validQuestion.solver?.display_name && (
-              <span className="text-green-700 dark:text-green-400">Solved by: {validQuestion.solver.display_name}</span>
+              <span className="text-success font-medium">Solved by: {validQuestion.solver.display_name}</span>
             )}
           </div>
-          <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap mb-6">
+          <p className="text-foreground whitespace-pre-wrap mb-6">
             {validQuestion.body}
           </p>
 
@@ -315,12 +317,12 @@ export default async function QuestionPage({
           
           <div className="flex items-center justify-between mb-6 mt-6">
             <div className="flex items-center gap-4">
-              <span className="font-semibold text-lg text-black dark:text-white">▲ {validQuestion.voteCount}</span>
+              <span className="font-semibold text-lg">▲ {validQuestion.voteCount}</span>
               {user && user.id !== validQuestion.author_id && (
                 <form action={handleQuestionUpvote}>
-                  <button type="submit" className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasUpvotedQuestion ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                  <Button type="submit" variant={hasUpvotedQuestion ? 'primary' : 'secondary'} className="px-3 py-1.5 h-auto">
                     {hasUpvotedQuestion ? '▲ Upvoted' : '▲ Upvote'}
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>
@@ -338,38 +340,38 @@ export default async function QuestionPage({
           </div>
 
           {!validQuestion.is_solved && hasPermission && (
-             <form action={handleMarkSolved}>
-               <button type="submit" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium transition-colors">
+             <form action={handleMarkSolved} className="mt-2">
+               <Button type="submit" className="bg-success hover:bg-success/90 text-white">
                  Mark as Solved
-               </button>
+               </Button>
              </form>
           )}
-        </div>
+        </Card>
 
-        <h2 className="text-2xl font-bold text-black dark:text-white mb-6">
+        <h2 className="text-2xl font-bold tracking-tight mb-6">
           Answers ({answers.length})
         </h2>
 
         <div className="flex flex-col gap-4 mb-12">
           {answers.length > 0 ? (
             answers.map((answer) => (
-              <div key={answer.id} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                <div className="text-sm font-medium text-black dark:text-white mb-2">
+              <Card key={answer.id} className="p-6">
+                <div className="text-sm font-medium text-foreground mb-2">
                   Answered by: {answer.author?.display_name}
                 </div>
-                <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">{answer.body}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{answer.body}</p>
                 
                 {renderAttachments(answerAttachmentsMap[answer.id])}
 
                 <div className="mt-6 flex items-center justify-between">
-                  <div className="text-xs text-zinc-500">
+                  <div className="text-xs text-muted-foreground">
                     {new Date(answer.created_at).toLocaleDateString()}
                   </div>
                   
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       {user && user.id === answer.author_id && (
-                        <Link href={`/answers/${answer.id}/edit`} className="px-3 py-1.5 text-xs font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
+                        <Link href={`/answers/${answer.id}/edit`} className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                           Edit
                         </Link>
                       )}
@@ -380,22 +382,24 @@ export default async function QuestionPage({
                       )}
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-sm text-black dark:text-white">▲ {answer.voteCount}</span>
+                      <span className="font-semibold text-sm">▲ {answer.voteCount}</span>
                       {user && user.id !== answer.author_id && (
                         <form action={handleAnswerUpvote}>
                           <input type="hidden" name="answerId" value={answer.id} />
-                          <button type="submit" className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${userUpvotedAnswers[answer.id] ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700'}`}>
+                          <Button type="submit" variant={userUpvotedAnswers[answer.id] ? 'primary' : 'secondary'} className="px-2.5 py-1 h-auto text-xs">
                             {userUpvotedAnswers[answer.id] ? '▲ Upvoted' : '▲ Upvote'}
-                          </button>
+                          </Button>
                         </form>
                       )}
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))
           ) : (
-            <p className="text-zinc-500">No answers yet. Be the first to answer!</p>
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No answers yet. Be the first to answer!</p>
+            </Card>
           )}
         </div>
 
