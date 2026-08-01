@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getQuestionById, markQuestionSolved, deleteQuestion } from '@/utils/data/questions'
 import { getAnswersByQuestion, createAnswer, deleteAnswer } from '@/utils/data/answers'
 import { hasUserUpvotedQuestion, hasUserUpvotedAnswer, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
+import { getQuestionAttachments, getAnswerAttachments, createAttachment, deleteAttachment } from '@/utils/data/attachments'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { DeleteButton } from './delete-button'
@@ -63,13 +64,23 @@ export default async function QuestionPage({
     }))
   }
 
+  let questionAttachments: any[] = []
+  let answerAttachmentsMap: Record<string, any[]> = {}
+  try {
+    questionAttachments = await getQuestionAttachments(validQuestion.id)
+    await Promise.all(answers.map(async (a) => {
+      answerAttachmentsMap[a.id] = await getAnswerAttachments(a.id)
+    }))
+  } catch (error) {
+    console.error(error)
+  }
+
   async function handleQuestionUpvote() {
     'use server'
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return;
     
-    // Check self-upvote on server
     if (validQuestion.author_id === user.id) {
        console.error("Cannot upvote your own question");
        return;
@@ -88,7 +99,6 @@ export default async function QuestionPage({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return;
 
-    // Prevent self-upvote on server, query db directly
     const { data: answerData } = await supabase.from('answers').select('author_id').eq('id', answerId).single()
     if (!answerData || answerData.author_id === user.id) {
        console.error("Cannot upvote your own answer");
@@ -109,6 +119,13 @@ export default async function QuestionPage({
       console.error('Answer body must not be empty.')
       return
     }
+    
+    const attachment = formData.get('attachment') as File | null
+    if (attachment && attachment.size > 0) {
+      if (attachment.size > 10 * 1024 * 1024) return
+      const allowed = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
+      if (!allowed.includes(attachment.type)) return
+    }
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -119,7 +136,10 @@ export default async function QuestionPage({
     }
 
     try {
-      await createAnswer(validQuestion.id, user.id, body)
+      const answer = await createAnswer(validQuestion.id, user.id, body)
+      if (attachment && attachment.size > 0) {
+        await createAttachment(attachment, null, answer.id)
+      }
     } catch (error) {
       console.error(error)
       return
@@ -191,6 +211,62 @@ export default async function QuestionPage({
     redirect(`/questions/${validQuestion.id}`)
   }
 
+  async function handleDeleteAttachment(formData: FormData) {
+    'use server'
+    const attachmentId = formData.get('attachmentId') as string
+    if (!attachmentId) return
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    const { data: profile } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
+    if (!profile) return
+    
+    const { data: attData } = await supabase.from('attachments').select('uploaded_by').eq('id', attachmentId).single()
+    if (!attData) return
+    
+    const canDelete = attData.uploaded_by === profile.id || profile.role === 'teacher' || profile.role === 'admin'
+    if (!canDelete) return
+    
+    await deleteAttachment(attachmentId)
+    redirect(`/questions/${validQuestion.id}`)
+  }
+
+  function renderAttachments(attachments: any[]) {
+    if (!attachments || attachments.length === 0) return null
+    return (
+      <div className="flex flex-wrap gap-4 mt-6">
+        {attachments.map(att => {
+          const canDelete = userProfile && (att.uploaded_by === userProfile.id || userProfile.role === 'teacher' || userProfile.role === 'admin')
+          return (
+            <div key={att.id} className="relative group border border-zinc-200 dark:border-zinc-800 rounded-lg p-2 bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center max-w-sm">
+              {att.mime_type.startsWith('image/') ? (
+                <img src={att.signedUrl} alt={att.file_name} className="max-w-full h-auto max-h-64 rounded object-contain" />
+              ) : (
+                <div className="flex items-center gap-3 p-4">
+                  <span className="text-2xl">📄</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-black dark:text-white truncate max-w-[200px]">{att.file_name}</span>
+                    <a href={att.signedUrl} download={att.file_name} className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1">Download PDF</a>
+                  </div>
+                </div>
+              )}
+              {canDelete && (
+                <form action={handleDeleteAttachment} className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <input type="hidden" name="attachmentId" value={att.id} />
+                  <button type="submit" className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-sm hover:bg-red-600 transition-colors" title="Delete Attachment">
+                    &times;
+                  </button>
+                </form>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8 sm:p-16">
       <div className="max-w-3xl w-full mx-auto">
@@ -220,8 +296,10 @@ export default async function QuestionPage({
           <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap mb-6">
             {validQuestion.body}
           </p>
+
+          {renderAttachments(questionAttachments)}
           
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 mt-6">
             <div className="flex items-center gap-4">
               <span className="font-semibold text-lg text-black dark:text-white">▲ {validQuestion.voteCount}</span>
               {user && user.id !== validQuestion.author_id && (
@@ -266,7 +344,10 @@ export default async function QuestionPage({
                   Answered by: {answer.author?.display_name}
                 </div>
                 <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">{answer.body}</p>
-                <div className="mt-4 flex items-center justify-between">
+                
+                {renderAttachments(answerAttachmentsMap[answer.id])}
+
+                <div className="mt-6 flex items-center justify-between">
                   <div className="text-xs text-zinc-500">
                     {new Date(answer.created_at).toLocaleDateString()}
                   </div>
@@ -308,7 +389,7 @@ export default async function QuestionPage({
           Your Answer
         </h2>
 
-        <form action={submitAnswer} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <form action={submitAnswer} encType="multipart/form-data" className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <div className="flex flex-col gap-2">
             <textarea 
               name="body" 
@@ -317,6 +398,19 @@ export default async function QuestionPage({
               className="p-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white resize-y"
               placeholder="Write your answer..."
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="attachment" className="text-sm font-medium text-black dark:text-white">
+              Attachment (Optional)
+            </label>
+            <input 
+              type="file" 
+              id="attachment" 
+              name="attachment" 
+              accept="image/png, image/jpeg, image/webp, application/pdf"
+              className="p-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-sm"
+            />
+            <p className="text-xs text-zinc-500">Max size 10MB. Allowed: PNG, JPG, WEBP, PDF.</p>
           </div>
           <div className="pt-2">
             <button 

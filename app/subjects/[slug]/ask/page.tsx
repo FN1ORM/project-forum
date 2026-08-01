@@ -39,6 +39,19 @@ export default async function AskQuestionPage({
       console.error('Title and body must not be empty after trimming.')
       return
     }
+    
+    const attachment = formData.get('attachment') as File | null
+    if (attachment && attachment.size > 0) {
+      if (attachment.size > 10 * 1024 * 1024) {
+        console.error('File size exceeds 10MB')
+        return
+      }
+      const allowed = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
+      if (!allowed.includes(attachment.type)) {
+        console.error('Invalid file type')
+        return
+      }
+    }
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -49,7 +62,12 @@ export default async function AskQuestionPage({
     }
 
     try {
-      await createQuestion(validSubject.id, user.id, title, body)
+      const question = await createQuestion(validSubject.id, user.id, title, body)
+      if (attachment && attachment.size > 0) {
+        // dynamic import or explicit import at the top
+        const { createAttachment } = await import('@/utils/data/attachments')
+        await createAttachment(attachment, question.id, null)
+      }
     } catch (error) {
       console.error(error)
       return
@@ -71,7 +89,7 @@ export default async function AskQuestionPage({
           Ask a Question
         </h1>
         
-        <form action={submitQuestion} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <form action={submitQuestion} encType="multipart/form-data" className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <div className="flex flex-col gap-2">
             <label htmlFor="title" className="font-medium text-black dark:text-white">
               Title
@@ -98,6 +116,20 @@ export default async function AskQuestionPage({
               className="p-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white resize-y"
               placeholder="Explain your question in detail..."
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="attachment" className="font-medium text-black dark:text-white">
+              Attachment (Optional)
+            </label>
+            <input 
+              type="file" 
+              id="attachment" 
+              name="attachment" 
+              accept="image/png, image/jpeg, image/webp, application/pdf"
+              className="p-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-sm"
+            />
+            <p className="text-xs text-zinc-500">Max size 10MB. Allowed: PNG, JPG, WEBP, PDF.</p>
           </div>
 
           <div className="pt-2">
