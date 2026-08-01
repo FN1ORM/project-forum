@@ -87,3 +87,21 @@ export async function deleteAnswer(answerId: string) {
     
   if (error) throw new Error(`Failed to delete answer: ${error.message}`)
 }
+
+export async function getAnswersByUser(userId: string, pageNumber: number = 1, pageSize: number = 10) {
+  const supabase = await createClient()
+  
+  let query = supabase.from('answers')
+    .select('*, question:questions(title)', { count: 'exact' })
+    .eq('author_id', userId)
+    .order('created_at', { ascending: false })
+
+  const from = (pageNumber - 1) * pageSize
+  const to = from + pageSize - 1
+  query = query.range(from, to)
+
+  const { data, error, count } = await query
+  if (error) throw new Error(`Failed to fetch user answers: ${error.message}`)
+
+  return { answers: data, totalCount: count || 0 }
+}

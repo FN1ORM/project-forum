@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Menu, LogOut, Search } from 'lucide-react'
+import { Menu, LogOut, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/utils/supabase/client'
@@ -66,6 +66,10 @@ export function TopNav({ profile }: { profile: any }) {
                   <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
                 </div>
                 <div className="p-1">
+                  <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-foreground hover:bg-surface-elevated transition-colors text-left font-medium">
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </Link>
                   <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-danger hover:bg-surface-elevated transition-colors text-left font-medium">
                     <LogOut className="w-4 h-4" />
                     Sign out
@@ -86,6 +90,9 @@ export function TopNav({ profile }: { profile: any }) {
           <nav className="flex flex-col gap-2">
             <Link href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
               Home
+            </Link>
+            <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
+              My Profile
             </Link>
             {profile.role === 'teacher' && (
               <Link href="/teacher" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">

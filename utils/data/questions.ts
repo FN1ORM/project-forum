@@ -29,9 +29,13 @@ function mapFeedQuestion(q: any) {
   }
 }
 
-export async function getGlobalFeed(sort: string = 'latest', currentUserId?: string, pageNumber: number = 1, pageSize: number = 10) {
+export async function getGlobalFeed(sort: string = 'latest', currentUserId?: string, pageNumber: number = 1, pageSize: number = 10, authorIdFilter?: string) {
   const supabase = await createClient()
   let query = supabase.from('questions').select(feedSelect, { count: 'exact' })
+  
+  if (authorIdFilter) {
+    query = query.eq('author_id', authorIdFilter)
+  }
   
   query = applySort(query, sort, currentUserId)
   
