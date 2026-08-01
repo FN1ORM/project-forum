@@ -1,0 +1,2 @@
+CREATE POLICY "Admins can update answers" ON public.answers FOR UPDATE TO authenticated USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin'));
+CREATE POLICY "Admins can update questions" ON public.questions FOR UPDATE TO authenticated USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin'));
