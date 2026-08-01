@@ -249,7 +249,10 @@ export default async function QuestionPage({
                   <span className="text-2xl">📄</span>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-black dark:text-white truncate max-w-[200px]">{att.file_name}</span>
-                    <a href={att.signedUrl} download={att.file_name} className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1">Download PDF</a>
+                    <div className="flex items-center gap-3 mt-1">
+                      <Link href={`/attachments/view/${att.id}?question=${validQuestion.id}`} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">View PDF</Link>
+                      <a href={att.signedUrl} download={att.file_name} className="text-xs text-zinc-600 dark:text-zinc-400 hover:underline">Download</a>
+                    </div>
                   </div>
                 </div>
               )}
