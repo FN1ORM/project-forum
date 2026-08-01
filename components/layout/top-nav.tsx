@@ -2,18 +2,30 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Menu, LogOut } from 'lucide-react'
+import { Menu, LogOut, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export function TopNav({ profile }: { profile: any }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
+  const router = useRouter()
 
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
     window.location.href = '/'
+  }
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const q = formData.get('q')?.toString().trim()
+    if (q) {
+      router.push(`/search?q=${encodeURIComponent(q)}`)
+    }
   }
 
   return (
@@ -23,10 +35,22 @@ export function TopNav({ profile }: { profile: any }) {
           <Button variant="ghost" className="md:hidden p-2 h-auto" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
             <Menu className="w-5 h-5" />
           </Button>
-          <Link href="/" className="font-bold text-lg tracking-tight hover:text-primary transition-colors">
+          <Link href="/" className="font-bold text-lg tracking-tight hover:text-primary transition-colors hidden sm:block">
             Project Forum
           </Link>
         </div>
+
+        <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 relative">
+          <div className="relative flex items-center w-full">
+            <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
+            <Input 
+              type="search" 
+              name="q"
+              placeholder="Search questions..." 
+              className="w-full pl-9 bg-surface-elevated/50 border-border rounded-full text-sm h-9 focus-visible:ring-1"
+            />
+          </div>
+        </form>
 
         {profile ? (
           <div className="relative">
