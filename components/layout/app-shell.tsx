@@ -23,8 +23,10 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <TopNav profile={profile} />
       <div className="flex flex-1 w-full md:gap-8 lg:gap-12">
         <Sidebar profile={profile} />
-        <main className="flex-1 min-w-0">
-          {children}
+        <main className="flex-1 min-w-0 flex justify-center">
+          <div className="w-full max-w-5xl">
+            {children}
+          </div>
         </main>
       </div>
     </div>
