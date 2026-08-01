@@ -38,9 +38,9 @@ export async function getReports(status: 'open' | 'dismissed' | 'resolved' = 'op
     .from('reports')
     .select(`
       *,
-      reporter:profiles!reporter_id(display_name, email, is_suspended),
-      question:questions!question_id(title, body, is_hidden),
-      answer:answers!answer_id(body, is_hidden, question_id)
+      reporter:profiles!reporter_id(display_name, email),
+      question:questions!question_id(title, body, is_hidden, author_id, author:profiles!author_id(display_name, email, is_suspended)),
+      answer:answers!answer_id(body, is_hidden, question_id, author_id, author:profiles!author_id(display_name, email, is_suspended))
     `)
     .eq('status', status)
     .order('created_at', { ascending: false })

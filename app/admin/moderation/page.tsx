@@ -83,7 +83,8 @@ export default async function ModerationPage({
               const targetId = isQuestion ? report.question_id : report.answer_id
               
               const isHidden = target?.is_hidden
-              const isSuspended = report.reporter?.is_suspended
+              const targetAuthor = target?.author
+              const isSuspended = targetAuthor?.is_suspended
 
               return (
                 <Card key={report.id} className="p-6">
@@ -118,10 +119,16 @@ export default async function ModerationPage({
                         <span className="text-muted-foreground line-clamp-3 mt-1">{target?.body}</span>
                       </div>
                       
-                      <div className="text-sm flex items-center gap-2">
-                        <span className="font-semibold">Reporter:</span>
-                        <span>{report.reporter?.display_name} ({report.reporter?.email})</span>
-                        {isSuspended && <Badge variant="destructive" className="ml-2">Suspended</Badge>}
+                      <div className="text-sm flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-muted-foreground">Reporter:</span>
+                          <span>{report.reporter?.display_name} ({report.reporter?.email})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Target Author:</span>
+                          <span>{targetAuthor?.display_name} ({targetAuthor?.email})</span>
+                          {isSuspended && <Badge variant="destructive" className="ml-2">Suspended</Badge>}
+                        </div>
                       </div>
                     </div>
 
@@ -138,10 +145,10 @@ export default async function ModerationPage({
                       </form>
                       
                       <form action={toggleUserSuspensionAction}>
-                        <input type="hidden" name="userId" value={report.reporter_id} />
+                        <input type="hidden" name="userId" value={target?.author_id} />
                         <input type="hidden" name="isSuspended" value={(!isSuspended).toString()} />
                         <Button type="submit" variant={isSuspended ? "success" : "danger"} className="w-full justify-start text-xs h-8">
-                          {isSuspended ? 'Unsuspend User' : 'Suspend User'}
+                          {isSuspended ? 'Unsuspend Author' : 'Suspend Author'}
                         </Button>
                       </form>
 

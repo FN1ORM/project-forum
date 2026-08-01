@@ -19,20 +19,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ i
   if (!question) notFound()
   
   if (question.isHiddenByModerator) {
-    return (
-      <div className="flex flex-col flex-1 bg-background text-foreground items-center justify-center min-h-[60vh]">
-        <div className="w-full max-w-md p-8 text-center">
-          <div className="text-4xl mb-4">🛡️</div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Content Removed</h1>
-          <p className="text-muted-foreground">
-            This content has been removed by a moderator for violating our community guidelines.
-          </p>
-          <Link href="/" className="inline-block mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
-            Return to Home
-          </Link>
-        </div>
-      </div>
-    )
+    redirect(`/questions/${id}`)
   }
   
   const supabase = await createClient()
