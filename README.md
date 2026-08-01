@@ -29,6 +29,7 @@ Project Forum is an exclusive, academic discussion platform built to bridge the 
 - **Solved Questions**: Authors and moderators can mark questions as definitively solved.
 - **Upvotes**: Community-driven content curation via upvoting for both questions and answers.
 - **Edit/Delete**: Secure content management allowing authors to modify their own work.
+- **Attachments**: Native support for uploading images and PDFs (up to 10MB) directly to questions and answers, complete with custom, native full-screen viewer interfaces.
 
 ### Moderation
 - **Teacher Dashboard**: Specialized views for faculty to monitor unanswered and unresolved questions.
@@ -114,7 +115,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] Solved Badges
 - [x] Edit & Delete System
 - [x] Teacher & Admin Dashboards
-- [ ] Attachments
+- [x] Attachments
 - [ ] Search
 - [ ] Notifications
 - [ ] UI Polish
