@@ -243,7 +243,13 @@ export default async function QuestionPage({
           return (
             <div key={att.id} className="relative group border border-zinc-200 dark:border-zinc-800 rounded-lg p-2 bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center max-w-sm">
               {att.mime_type.startsWith('image/') ? (
-                <img src={att.signedUrl} alt={att.file_name} className="max-w-full h-auto max-h-64 rounded object-contain" />
+                <Link href={`/attachments/image/${att.id}?question=${validQuestion.id}`} className="block overflow-hidden rounded">
+                  <img 
+                    src={att.signedUrl} 
+                    alt={att.file_name} 
+                    className="max-w-full h-auto max-h-64 object-contain cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:brightness-105" 
+                  />
+                </Link>
               ) : (
                 <div className="flex items-center gap-3 p-4">
                   <span className="text-2xl">📄</span>
