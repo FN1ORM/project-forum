@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server'
-import { LogoutButton } from '@/components/logout-button'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
 
@@ -30,11 +29,7 @@ export default async function Home() {
             <p className="text-xl text-zinc-600 dark:text-zinc-400">
               {user.email}
             </p>
-            <div className="mt-4">
-              <LogoutButton />
-            </div>
-
-            <div className="mt-12 w-full text-left">
+            <div className="mt-8 w-full text-left">
               <h2 className="text-2xl font-semibold text-black dark:text-white mb-6">
                 Subjects
               </h2>
