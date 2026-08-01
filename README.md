@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Forum
+
+Project Forum is an exclusive, academic discussion platform built to bridge the gap between students, teachers, and administrators at IIITG. Designed to solve the problem of fragmented academic discourse and lost knowledge across temporary chat applications, it provides a centralized, organized, and permanent repository where complex academic questions can be asked, answered, upvoted, and formally resolved in a secure environment.
+
+## Project Status
+
+**Current Version:** v1.0.0
+**Status:** Actively Developed
+
+## Core Design Principles
+
+- **Server Components first:** Heavy reliance on Next.js Server Components to minimize client-side JavaScript.
+- **Server-side authorization:** Strict backend-only validation for role and content access.
+- **Row Level Security (RLS):** Database-level security to inherently protect data across all queries.
+- **Data Access Layer (DAL):** Clean, modular separation of database operations away from the UI.
+- **Small, incremental feature development:** Methodical, ticket-based project progression.
+- **Security before convenience:** Zero trust in client-side state; robust permissions built into the core.
+
+## Features
+
+### Authentication
+- **Google OAuth**: Fast and secure single sign-on.
+- **IIITG Email Restriction**: Platform access is strictly ring-fenced to authorized institutional email addresses.
+
+### Forum
+- **Subjects**: Content is cleanly categorized into dedicated academic subjects.
+- **Questions**: Detailed academic question boards.
+- **Answers**: Collaborative peer and faculty answering capabilities.
+- **Solved Questions**: Authors and moderators can mark questions as definitively solved.
+- **Upvotes**: Community-driven content curation via upvoting for both questions and answers.
+- **Edit/Delete**: Secure content management allowing authors to modify their own work.
+
+### Moderation
+- **Teacher Dashboard**: Specialized views for faculty to monitor unanswered and unresolved questions.
+- **Admin Dashboard**: Centralized control center for platform oversight.
+- **Role Management**: Strict, server-enforced role assignments (Student, Teacher, Admin).
+
+## Tech Stack
+
+### Frontend
+- Next.js (App Router)
+- React
+- TypeScript
+- Tailwind CSS
+
+### Backend
+- Supabase
+- PostgreSQL
+- Row Level Security (RLS)
+
+### Authentication
+- Google OAuth
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Browser[Browser] -->|HTTP / Forms| Next[Next.js App]
+    Next -->|Server Components| SA[Server Actions]
+    SA -->|Validation & Logic| DAL[Data Access Layer]
+    DAL -->|PostgREST| SB[Supabase]
+    SB -->|RLS Policies| DB[(PostgreSQL)]
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- A Supabase Project
+- Google Cloud Console Project (for OAuth credentials)
 
+### Installation
+Clone the repository and install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/FN1ORM/project-forum.git
+cd project-forum
+npm install
 ```
 
+### Environment Variables
+Create a `.env.local` file in the root directory and add the following variables:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Running locally
+Start the development server:
+```bash
+npm run dev
+```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Screenshots
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Home Page
+*(Add screenshot here)*
 
-## Learn More
+### Question Page
+*(Add screenshot here)*
 
-To learn more about Next.js, take a look at the following resources:
+### Teacher Dashboard
+*(Add screenshot here)*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Admin Dashboard
+*(Add screenshot here)*
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Roadmap
 
-## Deploy on Vercel
+- [x] Authentication & Authorization
+- [x] Subject & Question Board
+- [x] Answer & Upvote System
+- [x] Solved Badges
+- [x] Edit & Delete System
+- [x] Teacher & Admin Dashboards
+- [ ] Attachments
+- [ ] Search
+- [ ] Notifications
+- [ ] UI Polish
+- [ ] Production Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is currently under active development. At this time, external contributions are not yet being accepted.
+
+## License
+
+This project is licensed under the MIT License.
