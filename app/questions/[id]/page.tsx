@@ -6,6 +6,7 @@ import { getQuestionAttachments, getAnswerAttachments, createAttachment, deleteA
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { DeleteButton } from './delete-button'
+import { ValidatedForm } from '@/components/validated-form'
 
 export default async function QuestionPage({
   params,
@@ -389,7 +390,7 @@ export default async function QuestionPage({
           Your Answer
         </h2>
 
-        <form action={submitAnswer} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <ValidatedForm action={submitAnswer} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <div className="flex flex-col gap-2">
             <textarea 
               name="body" 
@@ -420,7 +421,7 @@ export default async function QuestionPage({
               Post Answer
             </button>
           </div>
-        </form>
+        </ValidatedForm>
       </div>
     </div>
   )

@@ -3,6 +3,7 @@ import { getSubjectBySlug } from '@/utils/data/subjects'
 import { createQuestion } from '@/utils/data/questions'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
+import { ValidatedForm } from '@/components/validated-form'
 
 export default async function AskQuestionPage({
   params,
@@ -89,7 +90,7 @@ export default async function AskQuestionPage({
           Ask a Question
         </h1>
         
-        <form action={submitQuestion} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <ValidatedForm action={submitQuestion} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <div className="flex flex-col gap-2">
             <label htmlFor="title" className="font-medium text-black dark:text-white">
               Title
@@ -140,7 +141,7 @@ export default async function AskQuestionPage({
               Submit Question
             </button>
           </div>
-        </form>
+        </ValidatedForm>
       </div>
     </div>
   )
