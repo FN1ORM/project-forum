@@ -1,19 +1,32 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
+import { getGlobalFeed } from '@/utils/data/questions'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { SortTabs } from '@/components/ui/sort-tabs'
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>
+}) {
+  const { sort } = await searchParams
+  const currentSort = sort || 'latest'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   let subjects: any[] = []
+  let questions: any[] = []
   let profile = null
+
   if (user) {
     try {
       const { data } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
       profile = data
       subjects = await getSubjects()
+      questions = await getGlobalFeed(currentSort, user.id)
     } catch (error) {
       console.error(error)
     }
@@ -49,6 +62,49 @@ export default async function Home() {
                   <p>No subjects available at the moment.</p>
                 </Card>
               )}
+            </div>
+
+            <div className="mt-12 w-full text-left">
+              <h2 className="text-2xl font-bold tracking-tight mb-6">
+                Global Feed
+              </h2>
+              
+              <SortTabs />
+
+              <div className="flex flex-col gap-4">
+                {questions.length > 0 ? (
+                  questions.map((q) => (
+                    <Link key={q.id} href={`/questions/${q.id}`}>
+                      <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
+                          {q.is_solved && (
+                            <Badge variant="success" className="shrink-0">
+                              ✓ Solved
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground line-clamp-2">{q.body}</p>
+                        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
+                          <div className="flex items-center gap-2">
+                            <span>Asked by {q.author?.display_name}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>in {q.subjects?.name}</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="font-medium text-foreground">▲ {q.voteCount}</span>
+                            <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <Card className="p-8 text-center text-muted-foreground">
+                    <p>No questions found for this filter.</p>
+                  </Card>
+                )}
+              </div>
             </div>
           </div>
         ) : (

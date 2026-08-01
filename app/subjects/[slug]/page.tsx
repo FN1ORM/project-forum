@@ -1,16 +1,25 @@
+import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import { getSubjectBySlug } from '@/utils/data/subjects'
-import { getQuestionsBySubject } from '@/utils/data/questions'
+import { getSubjectFeed } from '@/utils/data/questions'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SortTabs } from '@/components/ui/sort-tabs'
 
 export default async function SubjectPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ sort?: string }>
 }) {
   const { slug } = await params
+  const { sort } = await searchParams
+  const currentSort = sort || 'latest'
+  
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   
   let subject = null;
   try {
@@ -25,7 +34,7 @@ export default async function SubjectPage({
 
   let questions: any[] = []
   try {
-    questions = await getQuestionsBySubject(subject.id)
+    questions = await getSubjectFeed(subject.id, currentSort, user?.id)
   } catch (error) {
     console.error(error)
   }
@@ -48,6 +57,8 @@ export default async function SubjectPage({
         <h1 className="text-4xl font-bold tracking-tight mb-6">
           {subject.name}
         </h1>
+        
+        <SortTabs />
         
         <div className="flex flex-col gap-4">
           {questions.length > 0 ? (

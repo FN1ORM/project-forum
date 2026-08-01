@@ -1,21 +1,62 @@
 import { createClient } from '@/utils/supabase/server'
 
-export async function getQuestionsBySubject(subjectId: string) {
+const feedSelect = '*, author:profiles!author_id(display_name), subjects!subject_id(slug, name), question_vote_count, question_answer_count'
+
+function applySort(query: any, sort: string, currentUserId?: string) {
+  switch (sort) {
+    case 'upvotes':
+      return query.order('question_vote_count', { ascending: false }).order('created_at', { ascending: false })
+    case 'unanswered':
+      return query.eq('question_answer_count', 0).order('created_at', { ascending: false })
+    case 'solved':
+      return query.eq('is_solved', true).order('created_at', { ascending: false })
+    case 'my':
+      if (currentUserId) {
+        return query.eq('author_id', currentUserId).order('created_at', { ascending: false })
+      }
+      return query.order('created_at', { ascending: false })
+    case 'latest':
+    default:
+      return query.order('created_at', { ascending: false })
+  }
+}
+
+function mapFeedQuestion(q: any) {
+  return {
+    ...q,
+    voteCount: q.question_vote_count || 0,
+    answerCount: q.question_answer_count || 0
+  }
+}
+
+export async function getGlobalFeed(sort: string = 'latest', currentUserId?: string) {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('questions')
-    .select('*, author:profiles!author_id(display_name), question_votes(count)')
-    .eq('subject_id', subjectId)
-    .order('created_at', { ascending: false })
+  let query = supabase.from('questions').select(feedSelect)
+  
+  query = applySort(query, sort, currentUserId)
+  
+  const { data, error } = await query
   
   if (error) {
-    throw new Error(`Failed to fetch questions: ${error.message}`)
+    throw new Error(`Failed to fetch global feed: ${error.message}`)
   }
   
-  return data.map(q => ({
-    ...q,
-    voteCount: q.question_votes?.[0]?.count || 0
-  }))
+  return data.map(mapFeedQuestion)
+}
+
+export async function getSubjectFeed(subjectId: string, sort: string = 'latest', currentUserId?: string) {
+  const supabase = await createClient()
+  let query = supabase.from('questions').select(feedSelect).eq('subject_id', subjectId)
+  
+  query = applySort(query, sort, currentUserId)
+  
+  const { data, error } = await query
+  
+  if (error) {
+    throw new Error(`Failed to fetch subject feed: ${error.message}`)
+  }
+  
+  return data.map(mapFeedQuestion)
 }
 
 export async function createQuestion(subjectId: string, authorId: string, title: string, body: string) {
