@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getQuestionById, markQuestionSolved, deleteQuestion } from '@/utils/data/questions'
 import { getAnswersByQuestion, createAnswer, deleteAnswer } from '@/utils/data/answers'
 import { hasUserUpvotedQuestion, hasUserUpvotedAnswer, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
-import { getQuestionAttachments, getAnswerAttachments, createAttachment, deleteAttachment } from '@/utils/data/attachments'
+import { getQuestionAttachments, getAnswerAttachments, createAttachment, deleteAttachment, getAttachmentById } from '@/utils/data/attachments'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { DeleteButton } from './delete-button'
@@ -223,7 +223,7 @@ export default async function QuestionPage({
     const { data: profile } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
     if (!profile) return
     
-    const { data: attData } = await supabase.from('attachments').select('uploaded_by').eq('id', attachmentId).single()
+    const attData = await getAttachmentById(attachmentId)
     if (!attData) return
     
     const canDelete = attData.uploaded_by === profile.id || profile.role === 'teacher' || profile.role === 'admin'

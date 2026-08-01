@@ -93,6 +93,18 @@ export async function getAnswerAttachments(answerId: string) {
   return attachSignedUrls(data)
 }
 
+export async function getAttachmentById(attachmentId: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('attachments')
+    .select('*')
+    .eq('id', attachmentId)
+    .single()
+    
+  if (error) throw new Error(error.message)
+  return data
+}
+
 export async function deleteAttachment(attachmentId: string) {
   const supabase = await createClient()
   
