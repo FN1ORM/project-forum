@@ -135,6 +135,10 @@ export async function getQuestionById(id: string) {
   
   if (error) {
     if (error.code === 'PGRST116') {
+      const { data: isHidden } = await supabase.rpc('check_question_hidden_status', { q_id: id })
+      if (isHidden) {
+        return { isHiddenByModerator: true }
+      }
       return null
     }
     throw new Error(`Failed to fetch question: ${error.message}`)

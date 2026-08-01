@@ -28,7 +28,13 @@ export async function getAnswerById(id: string) {
     .single()
   
   if (error) {
-    if (error.code === 'PGRST116') return null
+    if (error.code === 'PGRST116') {
+      const { data: isHidden } = await supabase.rpc('check_answer_hidden_status', { a_id: id })
+      if (isHidden) {
+        return { isHiddenByModerator: true }
+      }
+      return null
+    }
     throw new Error(`Failed to fetch answer: ${error.message}`)
   }
   return data

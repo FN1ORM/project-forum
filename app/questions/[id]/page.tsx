@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SubmitButton } from '@/components/submit-button'
+import { ReportDialog } from '@/components/ui/report-dialog'
 
 export default async function QuestionPage({
   params,
@@ -30,6 +31,23 @@ export default async function QuestionPage({
 
   if (!question) {
     notFound()
+  }
+  
+  if (question.isHiddenByModerator) {
+    return (
+      <div className="flex flex-col flex-1 bg-background text-foreground items-center justify-center min-h-[60vh]">
+        <div className="w-full max-w-md p-8 text-center">
+          <div className="text-4xl mb-4">🛡️</div>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">Content Removed</h1>
+          <p className="text-muted-foreground">
+            This content has been removed by a moderator for violating our community guidelines.
+          </p>
+          <Link href="/" className="inline-block mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
+            Return to Home
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   const validQuestion = question
@@ -336,6 +354,9 @@ export default async function QuestionPage({
               {userProfile && (validQuestion.author_id === userProfile.id || userProfile.role === 'teacher' || userProfile.role === 'admin') && (
                 <DeleteButton action={handleDeleteQuestion} />
               )}
+              {user && user.id !== validQuestion.author_id && (
+                <ReportDialog targetType="question" targetId={validQuestion.id} />
+              )}
             </div>
           </div>
 
@@ -379,6 +400,9 @@ export default async function QuestionPage({
                         <DeleteButton action={handleDeleteAnswer}>
                           <input type="hidden" name="answerId" value={answer.id} />
                         </DeleteButton>
+                      )}
+                      {user && user.id !== answer.author_id && (
+                        <ReportDialog targetType="answer" targetId={answer.id} />
                       )}
                     </div>
                     <div className="flex items-center gap-3">

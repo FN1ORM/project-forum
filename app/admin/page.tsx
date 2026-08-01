@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { getAllUsers, updateUserRole, countAdmins, getUserRole } from '@/utils/data/admin'
 import { revalidatePath } from 'next/cache'
@@ -84,7 +85,12 @@ export default async function AdminDashboard() {
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
-        <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
+          <Link href="/admin/moderation" className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+            Moderation Queue &rarr;
+          </Link>
+        </div>
         
         {/* Search */}
         <div className="flex gap-4 mb-4">
