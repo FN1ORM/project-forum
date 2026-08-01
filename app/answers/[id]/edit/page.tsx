@@ -41,8 +41,8 @@ export default async function EditAnswerPage({ params }: { params: Promise<{ id:
   }
   
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8 sm:p-16">
-      <main className="flex-1 w-full max-w-3xl mx-auto flex flex-col gap-8">
+    <div className="flex flex-col flex-1 bg-background text-foreground">
+      <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
         <div className="flex items-center gap-4">
           <Link href={`/questions/${answer.question_id}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Cancel

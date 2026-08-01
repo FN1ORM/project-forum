@@ -18,7 +18,7 @@ export function TopNav({ profile }: { profile: any }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-surface/80 backdrop-blur-md">
-      <div className="flex h-16 items-center px-4 md:px-8 max-w-7xl mx-auto w-full justify-between">
+      <div className="flex h-16 items-center px-4 md:px-8 w-full justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" className="md:hidden p-2 h-auto" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
             <Menu className="w-5 h-5" />

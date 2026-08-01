@@ -19,8 +19,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center py-32 px-16 sm:items-start text-center sm:text-left gap-12">
+    <div className="flex flex-col flex-1 bg-background text-foreground">
+      <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-12">
         {user ? (
           <div className="flex flex-col gap-4 w-full">
             <h1 className="text-3xl font-semibold text-black dark:text-white">

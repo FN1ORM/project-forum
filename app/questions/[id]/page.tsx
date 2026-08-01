@@ -282,8 +282,8 @@ export default async function QuestionPage({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8 sm:p-16">
-      <div className="max-w-3xl w-full mx-auto">
+    <div className="flex flex-col flex-1 bg-background text-foreground">
+      <div className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16">
         <div className="mb-8">
           <Link href={subjectSlug ? `/subjects/${subjectSlug}` : '/'} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Back {subjectName ? `to ${subjectName}` : ''}

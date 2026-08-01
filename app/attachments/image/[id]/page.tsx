@@ -40,8 +40,8 @@ export default async function ViewImageAttachmentPage({
   const backUrl = questionId ? `/questions/${questionId}` : '/'
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-black font-sans p-8">
-      <div className="w-full max-w-5xl mx-auto flex flex-col h-[90vh]">
+    <div className="flex flex-col flex-1 bg-background text-foreground">
+      <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 h-[90vh]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link href={backUrl} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white transition-colors">
