@@ -7,6 +7,10 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { DeleteButton } from './delete-button'
 import { ValidatedForm } from '@/components/validated-form'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { SubmitButton } from '@/components/submit-button'
 
 export default async function QuestionPage({
   params,
@@ -399,38 +403,36 @@ export default async function QuestionPage({
           Your Answer
         </h2>
 
-        <ValidatedForm action={submitAnswer} className="flex flex-col gap-6 p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-          <div className="flex flex-col gap-2">
-            <textarea 
-              name="body" 
-              rows={5}
-              required 
-              className="p-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white resize-y"
-              placeholder="Write your answer..."
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="attachment" className="text-sm font-medium text-black dark:text-white">
-              Attachment (Optional)
-            </label>
-            <input 
-              type="file" 
-              id="attachment" 
-              name="attachment" 
-              accept="image/png, image/jpeg, image/webp, application/pdf"
-              className="p-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-sm"
-            />
-            <p className="text-xs text-zinc-500">Max size 10MB. Allowed: PNG, JPG, WEBP, PDF.</p>
-          </div>
-          <div className="pt-2">
-            <button 
-              type="submit"
-              className="w-full py-3 bg-black text-white dark:bg-white dark:text-black rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors font-medium"
-            >
-              Post Answer
-            </button>
-          </div>
-        </ValidatedForm>
+        <Card className="p-8">
+          <ValidatedForm action={submitAnswer} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <Textarea 
+                name="body" 
+                rows={5}
+                required 
+                placeholder="Write your answer..."
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="attachment" className="text-sm font-medium">
+                Attachment (Optional)
+              </label>
+              <Input 
+                type="file" 
+                id="attachment" 
+                name="attachment" 
+                accept="image/png, image/jpeg, image/webp, application/pdf"
+                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-surface-elevated file:text-foreground hover:file:bg-muted"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Max size 10MB. Allowed: PNG, JPG, WEBP, PDF.</p>
+            </div>
+            <div className="pt-2">
+              <SubmitButton className="w-full" pendingText="Posting...">
+                Post Answer
+              </SubmitButton>
+            </div>
+          </ValidatedForm>
+        </Card>
       </div>
     </div>
   )

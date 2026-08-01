@@ -1,24 +1,36 @@
 'use client'
 
+import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { Button } from '@/components/ui/button'
 
 export function LoginButton() {
+  const [pending, setPending] = useState(false)
+
   const handleLogin = async () => {
-    const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    setPending(true)
+    try {
+      const supabase = createClient()
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+    } catch (e) {
+      setPending(false)
+      console.error(e)
+    }
   }
 
   return (
-    <button
+    <Button
+      variant="secondary"
       onClick={handleLogin}
-      className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+      className="w-full h-11 text-base font-semibold"
+      disabled={pending}
     >
-      Sign in with Google
-    </button>
+      {pending ? "Redirecting..." : "Sign in with Google"}
+    </Button>
   )
 }

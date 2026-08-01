@@ -3,6 +3,8 @@ import { createClient } from '@/utils/supabase/server'
 import { getAllUsers, updateUserRole, countAdmins, getUserRole } from '@/utils/data/admin'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { Input } from '@/components/ui/input'
+import { SubmitButton } from '@/components/submit-button'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -86,22 +88,22 @@ export default async function AdminDashboard() {
         {/* Search */}
         <div className="flex gap-4 mb-4">
           <form action={handleSearch} className="flex flex-1 gap-4">
-            <input 
+            <Input 
               type="text" 
               name="q" 
               defaultValue={searchQuery} 
               placeholder="Search by name or email..." 
-              className="flex-1 p-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+              className="flex-1"
             />
-            <button type="submit" className="px-6 py-2 bg-black text-white dark:bg-white dark:text-black rounded-md font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+            <SubmitButton pendingText="Searching...">
               Search
-            </button>
+            </SubmitButton>
           </form>
           {searchQuery && (
             <form action={handleClearSearch}>
-              <button type="submit" className="h-full px-6 py-2 bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white rounded-md font-medium hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
+              <SubmitButton variant="secondary" pendingText="Clearing...">
                 Clear
-              </button>
+              </SubmitButton>
             </form>
           )}
         </div>
@@ -130,15 +132,15 @@ export default async function AdminDashboard() {
                         <select 
                           name="role" 
                           defaultValue={u.role}
-                          className="p-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white"
+                          className="flex h-10 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                         >
                           <option value="student">Student</option>
                           <option value="teacher">Teacher</option>
                           <option value="admin">Admin</option>
                         </select>
-                        <button type="submit" className="px-3 py-1.5 text-xs font-medium bg-black text-white dark:bg-white dark:text-black rounded hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+                        <SubmitButton pendingText="Updating...">
                           Update
-                        </button>
+                        </SubmitButton>
                       </form>
                     ) : (
                       <span className="text-xs font-medium text-zinc-400 italic">Cannot change own role</span>
