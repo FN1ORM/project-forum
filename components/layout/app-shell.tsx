@@ -19,10 +19,13 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <TopNav profile={profile} />
       <div className="flex flex-1 w-full md:gap-8 lg:gap-12">
         <Sidebar profile={profile} />
-        <main className="flex-1 min-w-0 flex justify-center">
-          <div className="w-full max-w-5xl">
+        <main className="flex-1 min-w-0 flex flex-col items-center">
+          <div className="w-full max-w-5xl flex-1">
             {children}
           </div>
+          <footer className="w-full py-6 text-center text-sm text-muted-foreground mt-auto border-t border-border">
+            To report any issue, Contact: fn1orm@gmail.com
+          </footer>
         </main>
       </div>
     </div>
