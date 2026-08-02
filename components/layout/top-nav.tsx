@@ -33,25 +33,29 @@ export function TopNav({ profile }: { profile: any }) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-surface/80 backdrop-blur-md">
       <div className="flex h-16 items-center px-4 md:px-8 w-full justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="md:hidden p-2 h-auto" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
-            <Menu className="w-5 h-5" />
-          </Button>
+          {profile && (
+            <Button variant="ghost" className="md:hidden p-2 h-auto" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
           <Link prefetch={false} href="/" className="font-bold text-lg tracking-tight hover:text-primary transition-colors hidden sm:block">
             Project Forum
           </Link>
         </div>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 relative hidden sm:block">
-          <div className="relative flex items-center w-full">
-            <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
-            <Input 
-              type="search" 
-              name="q"
-              placeholder="Search questions..." 
-              className="w-full pl-9 bg-surface-elevated/50 border-border rounded-full text-sm h-9 focus-visible:ring-1"
-            />
-          </div>
-        </form>
+        {profile && (
+          <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 relative hidden sm:block">
+            <div className="relative flex items-center w-full">
+              <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
+              <Input 
+                type="search" 
+                name="q"
+                placeholder="Search questions..." 
+                className="w-full pl-9 bg-surface-elevated/50 border-border rounded-full text-sm h-9 focus-visible:ring-1"
+              />
+            </div>
+          </form>
+        )}
 
         <div className="flex items-center gap-2">
           <div className="hidden sm:block">
