@@ -12,6 +12,7 @@ Project Forum is an exclusive, academic discussion platform built to bridge the 
 - **Server Components first:** Heavy reliance on Next.js Server Components to minimize client-side JavaScript.
 - **Server-side authorization:** Strict backend-only validation for role and content access.
 - **Row Level Security (RLS):** Database-level security to inherently protect data across all queries.
+- **Production Security Hardening:** Idiomatic PostgreSQL triggers augmenting RLS for zero-trust column-level immutability.
 - **Data Access Layer (DAL):** Clean, modular separation of database operations away from the UI.
 - **Small, incremental feature development:** Methodical, ticket-based project progression.
 - **Security before convenience:** Zero trust in client-side state; robust permissions built into the core.
@@ -30,8 +31,14 @@ Project Forum is an exclusive, academic discussion platform built to bridge the 
 - **Upvotes**: Community-driven content curation via upvoting for both questions and answers.
 - **Edit/Delete**: Secure content management allowing authors to modify their own work.
 - **Attachments**: Native support for uploading images and PDFs (up to 10MB) directly to questions and answers, complete with custom, native full-screen viewer interfaces.
+- **Global Search**: Sitewide search capabilities spanning questions and answers.
+- **Feed Sorting & Pagination**: Robust options for sorting questions and handling large datasets.
+- **User Profiles**: Public lightweight profiles showing questions and answers for each student.
 
 ### Moderation
+- **Reporting System**: Integrated flagging and reporting of inappropriate questions and answers.
+- **Content Moderation (Hide/Restore)**: Admins and teachers can hide or restore reported content.
+- **User Suspension**: Administrative capabilities to suspend misbehaving students.
 - **Teacher Dashboard**: Specialized views for faculty to monitor unanswered and unresolved questions.
 - **Admin Dashboard**: Centralized control center for platform oversight.
 - **Role Management**: Strict, server-enforced role assignments (Student, Teacher, Admin).
@@ -39,7 +46,7 @@ Project Forum is an exclusive, academic discussion platform built to bridge the 
 ## Tech Stack
 
 ### Frontend
-- Next.js (App Router)
+- Next.js 16 (App Router)
 - React
 - TypeScript
 - Tailwind CSS
@@ -116,7 +123,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] Edit & Delete System
 - [x] Teacher & Admin Dashboards
 - [x] Attachments
-- [ ] Search
+- [x] Global Search
+- [x] Feed Sorting & Pagination
+- [x] User Profiles
+- [x] Reporting System & Moderation
+- [x] Production Security Hardening
 - [ ] Notifications
 - [ ] UI Polish
 - [ ] Production Deployment
