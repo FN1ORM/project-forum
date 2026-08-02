@@ -50,7 +50,7 @@ export default async function QuestionPage({
     )
   }
 
-  const validQuestion = question
+  const validQuestion = question as any
 
   let answers: any[] = []
   try {
