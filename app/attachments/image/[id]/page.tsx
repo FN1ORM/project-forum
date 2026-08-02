@@ -67,7 +67,7 @@ export default async function ViewImageAttachmentPage({
             className="max-w-full max-h-full object-contain"
           />
         </div>
-      </div>
+      </main>
     </div>
   )
 }

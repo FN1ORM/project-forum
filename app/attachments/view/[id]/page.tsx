@@ -67,7 +67,7 @@ export default async function ViewAttachmentPage({
             title={attachment.file_name}
           />
         </div>
-      </div>
+      </main>
     </div>
   )
 }
