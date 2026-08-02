@@ -8,7 +8,7 @@ import { SubmitButton } from '@/components/submit-button'
 
 export default async function EditAnswerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  let answer = null
+  let answer: any = null
   try {
     answer = await getAnswerById(id)
   } catch (e) {
