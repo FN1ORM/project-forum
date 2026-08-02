@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { getProfileById } from '@/utils/data/profiles'
@@ -7,6 +8,109 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
+import { QuestionCardSkeleton } from '@/components/skeletons/question-card-skeleton'
+
+function QuestionListFallback() {
+  return (
+    <div className="flex flex-col gap-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <QuestionCardSkeleton key={i} />
+      ))}
+    </div>
+  )
+}
+
+async function ProfileFeed({ id, currentTab, pageNumber, pageSize, currentUserId }: { id: string, currentTab: string, pageNumber: number, pageSize: number, currentUserId: string }) {
+  let questions: any[] = []
+  let answers: any[] = []
+  let totalCount = 0
+
+  if (currentTab === 'questions') {
+    try {
+      const feed = await getGlobalFeed('latest', currentUserId, pageNumber, pageSize, id)
+      questions = feed.questions
+      totalCount = feed.totalCount
+    } catch (e) {
+      console.error(e)
+    }
+  } else {
+    try {
+      const res = await getAnswersByUser(id, pageNumber, pageSize)
+      answers = res.answers
+      totalCount = res.totalCount
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize)
+
+  return (
+    <>
+      <div className="flex flex-col gap-4">
+        {currentTab === 'questions' ? (
+          questions.length > 0 ? (
+            questions.map((q) => (
+              <Link prefetch={false} key={q.id} href={`/questions/${q.id}`}>
+                <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
+                    {q.is_solved && (
+                      <Badge variant="success" className="shrink-0">
+                        ✓ Solved
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
+                    <div className="flex items-center gap-2">
+                      <span>in {q.subjects?.name}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No questions posted yet.</p>
+            </Card>
+          )
+        ) : (
+          answers.length > 0 ? (
+            answers.map((a) => (
+              <Link prefetch={false} key={a.id} href={`/questions/${a.question_id}`}>
+                <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-muted-foreground">Answered on:</span>
+                      <span className="text-sm font-medium tracking-tight line-clamp-1">{a.question?.title}</span>
+                    </div>
+                    <p className="text-muted-foreground line-clamp-2 mt-2">{a.body}</p>
+                    <div className="mt-4 flex justify-end text-xs text-muted-foreground">
+                      <span>{new Date(a.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No answers posted yet.</p>
+            </Card>
+          )
+        )}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination currentPage={pageNumber} totalPages={totalPages} />
+        </div>
+      )}
+    </>
+  )
+}
 
 export default async function UserProfilePage({
   params,
@@ -46,30 +150,6 @@ export default async function UserProfilePage({
   const isAdminOrTeacher = currentProfile && ['admin', 'teacher'].includes(currentProfile.role)
   const showEmail = isSelf || isAdminOrTeacher
   const showRole = currentProfile?.role === 'admin'
-
-  let questions: any[] = []
-  let answers: any[] = []
-  let totalCount = 0
-
-  if (currentTab === 'questions') {
-    try {
-      const feed = await getGlobalFeed('latest', currentUser.id, pageNumber, pageSize, id)
-      questions = feed.questions
-      totalCount = feed.totalCount
-    } catch (e) {
-      console.error(e)
-    }
-  } else {
-    try {
-      const res = await getAnswersByUser(id, pageNumber, pageSize)
-      answers = res.answers
-      totalCount = res.totalCount
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  const totalPages = Math.ceil(totalCount / pageSize)
 
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
@@ -114,67 +194,9 @@ export default async function UserProfilePage({
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-4">
-          {currentTab === 'questions' ? (
-            questions.length > 0 ? (
-              questions.map((q) => (
-                <Link prefetch={false} key={q.id} href={`/questions/${q.id}`}>
-                  <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
-                      {q.is_solved && (
-                        <Badge variant="success" className="shrink-0">
-                          ✓ Solved
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
-                      <div className="flex items-center gap-2">
-                        <span>in {q.subjects?.name}</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span>{new Date(q.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No questions posted yet.</p>
-              </Card>
-            )
-          ) : (
-            answers.length > 0 ? (
-              answers.map((a) => (
-                <Link prefetch={false} key={a.id} href={`/questions/${a.question_id}`}>
-                  <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-muted-foreground">Answered on:</span>
-                        <span className="text-sm font-medium tracking-tight line-clamp-1">{a.question?.title}</span>
-                      </div>
-                      <p className="text-muted-foreground line-clamp-2 mt-2">{a.body}</p>
-                      <div className="mt-4 flex justify-end text-xs text-muted-foreground">
-                        <span>{new Date(a.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No answers posted yet.</p>
-              </Card>
-            )
-          )}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center">
-            <Pagination currentPage={pageNumber} totalPages={totalPages} />
-          </div>
-        )}
+        <Suspense fallback={<QuestionListFallback />} key={`${currentTab}-${pageNumber}`}>
+          <ProfileFeed id={id} currentTab={currentTab} pageNumber={pageNumber} pageSize={pageSize} currentUserId={currentUser.id} />
+        </Suspense>
       </main>
     </div>
   )

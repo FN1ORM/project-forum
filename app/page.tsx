@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { getUserAndProfile } from '@/utils/data/user'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
@@ -6,6 +7,71 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SortTabs } from '@/components/ui/sort-tabs'
 import { Pagination } from '@/components/ui/pagination'
+import { QuestionCardSkeleton } from '@/components/skeletons/question-card-skeleton'
+
+function QuestionListFallback() {
+  return (
+    <div className="flex flex-col gap-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <QuestionCardSkeleton key={i} />
+      ))}
+    </div>
+  )
+}
+
+async function GlobalFeed({ currentSort, userId, pageNumber, pageSize }: { currentSort: string, userId: string, pageNumber: number, pageSize: number }) {
+  let questions: any[] = []
+  let totalPages = 0
+  
+  try {
+    const feed = await getGlobalFeed(currentSort, userId, pageNumber, pageSize)
+    questions = feed.questions
+    totalPages = Math.ceil(feed.totalCount / pageSize)
+  } catch (error) {
+    console.error(error)
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-4">
+        {questions.length > 0 ? (
+          questions.map((q) => (
+            <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+              <Link prefetch={false} href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
+              <div className="relative z-10 pointer-events-none flex flex-col h-full">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
+                  {q.is_solved && (
+                    <Badge variant="success" className="shrink-0 pointer-events-auto">
+                      ✓ Solved
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-muted-foreground line-clamp-2">{q.body}</p>
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
+                  <div className="flex items-center gap-2 pointer-events-auto">
+                    <span>Asked by <Link prefetch={false} href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
+                    <span className="hidden sm:inline">•</span>
+                    <span>in {q.subjects?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium text-foreground">▲ {q.voteCount}</span>
+                    <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <Card className="p-8 text-center text-muted-foreground">
+            <p>No questions found for this filter.</p>
+          </Card>
+        )}
+      </div>
+      <Pagination currentPage={pageNumber} totalPages={totalPages} />
+    </>
+  )
+}
 
 export default async function Home({
   searchParams,
@@ -20,15 +86,10 @@ export default async function Home({
   const { user, profile } = await getUserAndProfile()
   
   let subjects: any[] = []
-  let questions: any[] = []
-  let totalPages = 0
 
   if (user) {
     try {
       subjects = await getSubjects()
-      const feed = await getGlobalFeed(currentSort, user.id, pageNumber, pageSize)
-      questions = feed.questions
-      totalPages = Math.ceil(feed.totalCount / pageSize)
     } catch (error) {
       console.error(error)
     }
@@ -73,43 +134,9 @@ export default async function Home({
               
               <SortTabs />
 
-              <div className="flex flex-col gap-4">
-                {questions.length > 0 ? (
-                  questions.map((q) => (
-                    <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
-                      <Link prefetch={false} href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
-                      <div className="relative z-10 pointer-events-none flex flex-col h-full">
-                        <div className="flex items-start justify-between gap-4 mb-2">
-                          <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
-                          {q.is_solved && (
-                            <Badge variant="success" className="shrink-0 pointer-events-auto">
-                              ✓ Solved
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-muted-foreground line-clamp-2">{q.body}</p>
-                        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
-                          <div className="flex items-center gap-2 pointer-events-auto">
-                            <span>Asked by <Link prefetch={false} href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
-                            <span className="hidden sm:inline">•</span>
-                            <span>in {q.subjects?.name}</span>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="font-medium text-foreground">▲ {q.voteCount}</span>
-                            <span>{new Date(q.created_at).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))
-                ) : (
-                  <Card className="p-8 text-center text-muted-foreground">
-                    <p>No questions found for this filter.</p>
-                  </Card>
-                )}
-              </div>
-
-              <Pagination currentPage={pageNumber} totalPages={totalPages} />
+              <Suspense fallback={<QuestionListFallback />} key={`${currentSort}-${pageNumber}`}>
+                <GlobalFeed currentSort={currentSort} userId={user.id} pageNumber={pageNumber} pageSize={pageSize} />
+              </Suspense>
             </div>
           </div>
         ) : (
