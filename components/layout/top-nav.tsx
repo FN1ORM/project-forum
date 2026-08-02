@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Menu, LogOut, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -40,7 +41,7 @@ export function TopNav({ profile }: { profile: any }) {
           </Link>
         </div>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 relative">
+        <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4 relative hidden sm:block">
           <div className="relative flex items-center w-full">
             <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -51,6 +52,11 @@ export function TopNav({ profile }: { profile: any }) {
             />
           </div>
         </form>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
 
         {profile ? (
           <div className="relative">
@@ -83,10 +89,15 @@ export function TopNav({ profile }: { profile: any }) {
             Sign in
           </Link>
         )}
+        </div>
       </div>
 
       {mobileMenuOpen && profile && (
         <div className="md:hidden border-b border-border bg-surface p-4">
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
+            <span className="text-sm font-medium text-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
           <nav className="flex flex-col gap-2">
             <Link prefetch={false} href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
               Home

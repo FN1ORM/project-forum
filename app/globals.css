@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "tailwindcss-animate";
 :root {
   --background: #fafafa;
   --foreground: #18181b;
@@ -20,26 +20,24 @@
   --ring: #10b981;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #f4f4f5;
-    --surface: #18181b;
-    --surface-elevated: #27272a;
-    --border: #27272a;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --primary: #10b981;
-    --primary-foreground: #ffffff;
-    --secondary: #18181b;
-    --secondary-foreground: #f4f4f5;
-    --accent: #3b82f6;
-    --accent-foreground: #ffffff;
-    --success: #10b981;
-    --warning: #fbbf24;
-    --danger: #ef4444;
-    --ring: #10b981;
-  }
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --surface: #18181b;
+  --surface-elevated: #27272a;
+  --border: #27272a;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #18181b;
+  --secondary-foreground: #f4f4f5;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --success: #10b981;
+  --warning: #fbbf24;
+  --danger: #ef4444;
+  --ring: #10b981;
 }
 
 @theme inline {
