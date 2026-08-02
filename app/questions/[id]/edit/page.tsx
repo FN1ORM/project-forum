@@ -9,7 +9,7 @@ import { SubmitButton } from '@/components/submit-button'
 
 export default async function EditQuestionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  let question = null
+  let question: any = null
   try {
     question = await getQuestionById(id)
   } catch (e) {
