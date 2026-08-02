@@ -39,7 +39,7 @@ export default async function Home({
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-12">
         {user ? (
           <div className="flex flex-col gap-4 w-full">
-            <h1 className="text-3xl font-semibold text-black dark:text-white">
+            <h1 className="text-3xl font-semibold text-foreground">
               Welcome, {profile?.display_name || ''}
             </h1>
             <p className="text-xl text-zinc-600 dark:text-zinc-400">
