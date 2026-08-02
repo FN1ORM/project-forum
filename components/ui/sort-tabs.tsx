@@ -33,8 +33,7 @@ export function SortTabs() {
       {tabs.map((tab) => {
         const isActive = currentSort === tab.id
         return (
-          <Link
-            key={tab.id}
+          <Link prefetch={false}             key={tab.id}
             href={createSortUrl(tab.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               isActive 

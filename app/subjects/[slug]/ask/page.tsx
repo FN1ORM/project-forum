@@ -85,7 +85,7 @@ export default async function AskQuestionPage({
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <div className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16">
         <div className="mb-8">
-          <Link href={`/subjects/${validSubject.slug}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <Link prefetch={false} href={`/subjects/${validSubject.slug}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Back to {validSubject.name}
           </Link>
         </div>

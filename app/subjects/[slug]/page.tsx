@@ -49,10 +49,10 @@ export default async function SubjectPage({
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <div className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
         <div className="mb-8 flex justify-between items-center">
-          <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <Link prefetch={false} href="/" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Back to Home
           </Link>
-          <Link 
+          <Link prefetch={false} 
             href={`/subjects/${subject.slug}/ask`}
             className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors text-sm font-medium"
           >
@@ -70,7 +70,7 @@ export default async function SubjectPage({
           {questions.length > 0 ? (
             questions.map((q) => (
               <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
-                <Link href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
+                <Link prefetch={false} href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
                 <div className="relative z-10 pointer-events-none flex flex-col h-full">
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
@@ -83,7 +83,7 @@ export default async function SubjectPage({
                   <p className="text-muted-foreground line-clamp-2">{q.body}</p>
                   <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                     <div className="pointer-events-auto">
-                      <span>Asked by <Link href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
+                      <span>Asked by <Link prefetch={false} href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="font-medium text-foreground">▲ {q.voteCount}</span>

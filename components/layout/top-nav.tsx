@@ -35,7 +35,7 @@ export function TopNav({ profile }: { profile: any }) {
           <Button variant="ghost" className="md:hidden p-2 h-auto" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
             <Menu className="w-5 h-5" />
           </Button>
-          <Link href="/" className="font-bold text-lg tracking-tight hover:text-primary transition-colors hidden sm:block">
+          <Link prefetch={false} href="/" className="font-bold text-lg tracking-tight hover:text-primary transition-colors hidden sm:block">
             Project Forum
           </Link>
         </div>
@@ -66,7 +66,7 @@ export function TopNav({ profile }: { profile: any }) {
                   <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
                 </div>
                 <div className="p-1">
-                  <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-foreground hover:bg-surface-elevated transition-colors text-left font-medium">
+                  <Link prefetch={false} href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-foreground hover:bg-surface-elevated transition-colors text-left font-medium">
                     <User className="w-4 h-4" />
                     My Profile
                   </Link>
@@ -79,7 +79,7 @@ export function TopNav({ profile }: { profile: any }) {
             )}
           </div>
         ) : (
-          <Link href="/login" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link prefetch={false} href="/login" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Sign in
           </Link>
         )}
@@ -88,19 +88,19 @@ export function TopNav({ profile }: { profile: any }) {
       {mobileMenuOpen && profile && (
         <div className="md:hidden border-b border-border bg-surface p-4">
           <nav className="flex flex-col gap-2">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
+            <Link prefetch={false} href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
               Home
             </Link>
-            <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
+            <Link prefetch={false} href="/profile" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
               My Profile
             </Link>
             {profile.role === 'teacher' && (
-              <Link href="/teacher" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
+              <Link prefetch={false} href="/teacher" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
                 Teacher Dashboard
               </Link>
             )}
             {profile.role === 'admin' && (
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
+              <Link prefetch={false} href="/admin" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground">
                 Admin Dashboard
               </Link>
             )}

@@ -66,7 +66,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ i
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
         <div className="flex items-center gap-4">
-          <Link href={`/questions/${id}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <Link prefetch={false} href={`/questions/${id}`} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Cancel
           </Link>
         </div>
@@ -100,7 +100,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ i
               />
             </div>
             <div className="pt-4 flex items-center justify-end gap-4">
-              <Link href={`/questions/${id}`} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link prefetch={false} href={`/questions/${id}`} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Cancel
               </Link>
               <SubmitButton pendingText="Saving...">

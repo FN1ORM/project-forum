@@ -44,7 +44,7 @@ export default async function QuestionPage({
           <p className="text-muted-foreground">
             This content has been removed by a moderator for violating our community guidelines.
           </p>
-          <Link href="/" className="inline-block mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
+          <Link prefetch={false} href="/" className="inline-block mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
             Return to Home
           </Link>
         </div>
@@ -254,7 +254,7 @@ export default async function QuestionPage({
           return (
             <div key={att.id} className="relative group border border-zinc-200 dark:border-zinc-800 rounded-lg p-2 bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center max-w-sm">
               {att.mime_type.startsWith('image/') ? (
-                <Link href={`/attachments/image/${att.id}?question=${validQuestion.id}`} className="block overflow-hidden rounded">
+                <Link prefetch={false} href={`/attachments/image/${att.id}?question=${validQuestion.id}`} className="block overflow-hidden rounded">
                   <img 
                     src={att.signedUrl} 
                     alt={att.file_name} 
@@ -267,7 +267,7 @@ export default async function QuestionPage({
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-black dark:text-white truncate max-w-[200px]">{att.file_name}</span>
                     <div className="flex items-center gap-3 mt-1">
-                      <Link href={`/attachments/view/${att.id}?question=${validQuestion.id}`} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">View PDF</Link>
+                      <Link prefetch={false} href={`/attachments/view/${att.id}?question=${validQuestion.id}`} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">View PDF</Link>
                       <a href={att.signedUrl} download={att.file_name} className="text-xs text-zinc-600 dark:text-zinc-400 hover:underline">Download</a>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default async function QuestionPage({
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <div className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16">
         <div className="mb-8">
-          <Link href={subjectSlug ? `/subjects/${subjectSlug}` : '/'} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <Link prefetch={false} href={subjectSlug ? `/subjects/${subjectSlug}` : '/'} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
             &larr; Back {subjectName ? `to ${subjectName}` : ''}
           </Link>
         </div>
@@ -309,9 +309,9 @@ export default async function QuestionPage({
             )}
           </div>
           <div className="text-sm text-muted-foreground mb-6 flex flex-col gap-1">
-            <span>Asked by: <Link href={`/users/${validQuestion.author_id}`} className="hover:underline text-foreground">{validQuestion.author?.display_name}</Link></span>
+            <span>Asked by: <Link prefetch={false} href={`/users/${validQuestion.author_id}`} className="hover:underline text-foreground">{validQuestion.author?.display_name}</Link></span>
             {validQuestion.is_solved && validQuestion.solver?.display_name && (
-              <span className="text-success font-medium">Solved by: <Link href={`/users/${validQuestion.solver_id}`} className="hover:underline">{validQuestion.solver.display_name}</Link></span>
+              <span className="text-success font-medium">Solved by: <Link prefetch={false} href={`/users/${validQuestion.solver_id}`} className="hover:underline">{validQuestion.solver.display_name}</Link></span>
             )}
           </div>
           <p className="text-foreground whitespace-pre-wrap mb-6">
@@ -334,7 +334,7 @@ export default async function QuestionPage({
             
             <div className="flex items-center gap-2">
               {canEditQuestion && (
-                <Link href={`/questions/${validQuestion.id}/edit`} className="px-3 py-1.5 text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
+                <Link prefetch={false} href={`/questions/${validQuestion.id}/edit`} className="px-3 py-1.5 text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
                   Edit
                 </Link>
               )}
@@ -365,7 +365,7 @@ export default async function QuestionPage({
             answers.map((answer) => (
               <Card key={answer.id} className="p-6">
                 <div className="text-sm font-medium text-foreground mb-2">
-                  Answered by: <Link href={`/users/${answer.author_id}`} className="hover:underline">{answer.author?.display_name}</Link>
+                  Answered by: <Link prefetch={false} href={`/users/${answer.author_id}`} className="hover:underline">{answer.author?.display_name}</Link>
                 </div>
                 <p className="text-muted-foreground whitespace-pre-wrap">{answer.body}</p>
                 
@@ -379,7 +379,7 @@ export default async function QuestionPage({
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       {user && user.id === answer.author_id && (
-                        <Link href={`/answers/${answer.id}/edit`} className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        <Link prefetch={false} href={`/answers/${answer.id}/edit`} className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                           Edit
                         </Link>
                       )}

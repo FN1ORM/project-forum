@@ -52,7 +52,7 @@ export default async function Home({
               {subjects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {subjects.map((subject) => (
-                    <Link key={subject.id} href={`/subjects/${subject.slug}`}>
+                    <Link prefetch={false} key={subject.id} href={`/subjects/${subject.slug}`}>
                       <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors h-full flex items-center">
                         <h3 className="text-lg font-semibold tracking-tight">{subject.name}</h3>
                       </Card>
@@ -77,7 +77,7 @@ export default async function Home({
                 {questions.length > 0 ? (
                   questions.map((q) => (
                     <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
-                      <Link href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
+                      <Link prefetch={false} href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
                       <div className="relative z-10 pointer-events-none flex flex-col h-full">
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
@@ -90,7 +90,7 @@ export default async function Home({
                         <p className="text-muted-foreground line-clamp-2">{q.body}</p>
                         <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-2">
                           <div className="flex items-center gap-2 pointer-events-auto">
-                            <span>Asked by <Link href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
+                            <span>Asked by <Link prefetch={false} href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
                             <span className="hidden sm:inline">•</span>
                             <span>in {q.subjects?.name}</span>
                           </div>
@@ -121,8 +121,7 @@ export default async function Home({
               You are not signed in.
             </p>
             <div className="mt-4">
-              <Link
-                href="/login"
+              <Link prefetch={false}                 href="/login"
                 className="px-6 py-3 rounded-full bg-foreground text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium"
               >
                 Go to Login

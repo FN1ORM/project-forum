@@ -44,25 +44,25 @@ export default async function ModerationPage({
       <main className="w-full max-w-7xl mx-auto flex flex-col py-12 px-6 lg:px-8 gap-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Moderation Queue</h1>
-          <Link href="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link prefetch={false} href="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">
             &larr; Admin Dashboard
           </Link>
         </div>
 
         <div className="flex gap-4 border-b border-border pb-4">
-          <Link 
+          <Link prefetch={false} 
             href="?status=open"
             className={`text-sm font-medium ${currentStatus === 'open' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
             Open Reports
           </Link>
-          <Link 
+          <Link prefetch={false} 
             href="?status=closed"
             className={`text-sm font-medium ${currentStatus === 'resolved' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
             Resolved
           </Link>
-          <Link 
+          <Link prefetch={false} 
             href="?status=dismissed"
             className={`text-sm font-medium ${currentStatus === 'dismissed' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
@@ -123,13 +123,13 @@ export default async function ModerationPage({
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-muted-foreground">Reporter:</span>
                           <span>
-                            <Link href={`/users/${report.reporter_id}`} className="hover:underline">{report.reporter?.display_name}</Link> ({report.reporter?.email})
+                            <Link prefetch={false} href={`/users/${report.reporter_id}`} className="hover:underline">{report.reporter?.display_name}</Link> ({report.reporter?.email})
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">Target Author:</span>
                           <span>
-                            <Link href={`/users/${target?.author_id}`} className="hover:underline">{targetAuthor?.display_name}</Link> ({targetAuthor?.email})
+                            <Link prefetch={false} href={`/users/${target?.author_id}`} className="hover:underline">{targetAuthor?.display_name}</Link> ({targetAuthor?.email})
                           </span>
                           {isSuspended && <Badge variant="destructive" className="ml-2">Suspended</Badge>}
                         </div>

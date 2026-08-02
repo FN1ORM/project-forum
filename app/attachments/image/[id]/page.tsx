@@ -44,7 +44,7 @@ export default async function ViewImageAttachmentPage({
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 h-[90vh]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Link href={backUrl} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white transition-colors">
+            <Link prefetch={false} href={backUrl} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white transition-colors">
               &larr; Back
             </Link>
             <h1 className="text-xl sm:text-2xl font-bold text-black dark:text-white truncate max-w-sm sm:max-w-md">

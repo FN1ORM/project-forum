@@ -20,7 +20,7 @@ export function Sidebar({ profile }: { profile: any }) {
       </div>
       
       <nav className="flex flex-col gap-2">
-        <Link 
+        <Link prefetch={false} 
           href="/" 
           title="Home"
           className={`flex items-center gap-3 py-2.5 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground ${collapsed ? 'justify-center px-0' : 'px-3'}`}
@@ -30,7 +30,7 @@ export function Sidebar({ profile }: { profile: any }) {
         </Link>
         
         {profile.role === 'teacher' && (
-          <Link 
+          <Link prefetch={false} 
             href="/teacher" 
             title="Teacher Dashboard"
             className={`flex items-center gap-3 py-2.5 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground ${collapsed ? 'justify-center px-0' : 'px-3'}`}
@@ -41,7 +41,7 @@ export function Sidebar({ profile }: { profile: any }) {
         )}
         
         {profile.role === 'admin' && (
-          <Link 
+          <Link prefetch={false} 
             href="/admin" 
             title="Admin Dashboard"
             className={`flex items-center gap-3 py-2.5 rounded-md hover:bg-surface-elevated text-sm font-medium transition-colors text-foreground ${collapsed ? 'justify-center px-0' : 'px-3'}`}

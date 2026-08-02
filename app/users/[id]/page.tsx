@@ -99,13 +99,13 @@ export default async function UserProfilePage({
 
         {/* Tabs */}
         <div className="flex gap-4 border-b border-border pb-4 mt-4">
-          <Link 
+          <Link prefetch={false} 
             href={`?tab=questions`}
             className={`text-sm font-medium ${currentTab === 'questions' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
             Questions
           </Link>
-          <Link 
+          <Link prefetch={false} 
             href={`?tab=answers`}
             className={`text-sm font-medium ${currentTab === 'answers' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
@@ -118,7 +118,7 @@ export default async function UserProfilePage({
           {currentTab === 'questions' ? (
             questions.length > 0 ? (
               questions.map((q) => (
-                <Link key={q.id} href={`/questions/${q.id}`}>
+                <Link prefetch={false} key={q.id} href={`/questions/${q.id}`}>
                   <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
@@ -147,7 +147,7 @@ export default async function UserProfilePage({
           ) : (
             answers.length > 0 ? (
               answers.map((a) => (
-                <Link key={a.id} href={`/questions/${a.question_id}`}>
+                <Link prefetch={false} key={a.id} href={`/questions/${a.question_id}`}>
                   <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">

@@ -19,7 +19,7 @@ export function Pagination({ currentPage, totalPages }: { currentPage: number, t
   return (
     <div className="flex items-center justify-center gap-4 mt-8">
       {currentPage > 1 ? (
-        <Link href={createPageUrl(currentPage - 1)}>
+        <Link prefetch={false} href={createPageUrl(currentPage - 1)}>
           <Button variant="secondary">Previous</Button>
         </Link>
       ) : (
@@ -31,7 +31,7 @@ export function Pagination({ currentPage, totalPages }: { currentPage: number, t
       </span>
       
       {currentPage < totalPages ? (
-        <Link href={createPageUrl(currentPage + 1)}>
+        <Link prefetch={false} href={createPageUrl(currentPage + 1)}>
           <Button variant="secondary">Next</Button>
         </Link>
       ) : (

@@ -87,7 +87,7 @@ export default async function AdminDashboard() {
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
-          <Link href="/admin/moderation" className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+          <Link prefetch={false} href="/admin/moderation" className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
             Moderation Queue &rarr;
           </Link>
         </div>
@@ -130,7 +130,7 @@ export default async function AdminDashboard() {
               {users.map(u => (
                 <tr key={u.id} className="border-b border-border last:border-0 hover:bg-surface-elevated/30 transition-colors">
                   <td className="p-4 text-sm font-medium text-foreground">
-                    <Link href={`/users/${u.id}`} className="hover:underline">{u.display_name}</Link>
+                    <Link prefetch={false} href={`/users/${u.id}`} className="hover:underline">{u.display_name}</Link>
                   </td>
                   <td className="p-4 text-sm text-muted-foreground">{u.email}</td>
                   <td className="p-4 text-sm text-muted-foreground capitalize">{u.role}</td>
