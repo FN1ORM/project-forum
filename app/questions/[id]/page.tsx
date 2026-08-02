@@ -62,7 +62,7 @@ export default async function QuestionPage({
   const subjectSlug = validQuestion.subjects?.slug
   const subjectName = validQuestion.subjects?.name
 
-  let userProfile = null;
+  let userProfile: any = null;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
