@@ -30,7 +30,7 @@ export default async function SearchPage({
         
         <div className="flex flex-col gap-4">
           {questions.length > 0 ? (
-            questions.map((q) => (
+            questions.map((q: any) => (
               <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
               <Link href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
               <div className="relative z-10 pointer-events-none flex flex-col h-full">
