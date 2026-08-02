@@ -19,12 +19,13 @@ function QuestionListFallback() {
   )
 }
 
-async function GlobalFeed({ currentSort, userId, pageNumber, pageSize }: { currentSort: string, userId: string, pageNumber: number, pageSize: number }) {
+async function GlobalFeed({ currentSort, pageNumber, pageSize }: { currentSort: string, pageNumber: number, pageSize: number }) {
   let questions: any[] = []
   let totalPages = 0
   
   try {
-    const feed = await getGlobalFeed(currentSort, userId, pageNumber, pageSize)
+    const { user } = await getUserAndProfile()
+    const feed = await getGlobalFeed(currentSort, user?.id, pageNumber, pageSize)
     questions = feed.questions
     totalPages = Math.ceil(feed.totalCount / pageSize)
   } catch (error) {
@@ -73,16 +74,7 @@ async function GlobalFeed({ currentSort, userId, pageNumber, pageSize }: { curre
   )
 }
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ sort?: string; page?: string }>
-}) {
-  const { sort, page } = await searchParams
-  const currentSort = sort || 'latest'
-  const pageNumber = parseInt(page || '1', 10)
-  const pageSize = 10
-
+async function HomeHeader() {
   const { user, profile } = await getUserAndProfile()
   
   let subjects: any[] = []
@@ -95,67 +87,102 @@ export default async function Home({
     }
   }
 
+  if (!user) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-semibold text-black dark:text-white">
+          Welcome to Project Forum
+        </h1>
+        <p className="text-lg text-zinc-600 dark:text-zinc-400">
+          You are not signed in.
+        </p>
+        <div className="mt-4">
+          <Link prefetch={false}                 href="/login"
+            className="px-6 py-3 rounded-full bg-foreground text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium"
+          >
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <h1 className="text-3xl font-semibold text-foreground">
+        Welcome, {profile?.display_name || ''}
+      </h1>
+      <p className="text-xl text-zinc-600 dark:text-zinc-400">
+        {user.email}
+      </p>
+      <div className="mt-8 w-full text-left">
+        <h2 className="text-2xl font-bold tracking-tight mb-6">
+          Subjects
+        </h2>
+        {subjects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {subjects.map((subject) => (
+              <Link prefetch={false} key={subject.id} href={`/subjects/${subject.slug}`}>
+                <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors h-full flex items-center">
+                  <h3 className="text-lg font-semibold tracking-tight">{subject.name}</h3>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Card className="p-8 text-center text-muted-foreground">
+            <p>No subjects available at the moment.</p>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function HomeHeaderSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 w-full animate-pulse">
+      <div className="h-9 w-64 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+      <div className="h-7 w-48 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+      <div className="mt-8 w-full text-left">
+        <div className="h-8 w-32 bg-zinc-200 dark:bg-zinc-800 rounded mb-6"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded-xl"></div>
+          <div className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; page?: string }>
+}) {
+  const { sort, page } = await searchParams
+  const currentSort = sort || 'latest'
+  const pageNumber = parseInt(page || '1', 10)
+  const pageSize = 10
+
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-12">
-        {user ? (
-          <div className="flex flex-col gap-4 w-full">
-            <h1 className="text-3xl font-semibold text-foreground">
-              Welcome, {profile?.display_name || ''}
-            </h1>
-            <p className="text-xl text-zinc-600 dark:text-zinc-400">
-              {user.email}
-            </p>
-            <div className="mt-8 w-full text-left">
-              <h2 className="text-2xl font-bold tracking-tight mb-6">
-                Subjects
-              </h2>
-              {subjects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {subjects.map((subject) => (
-                    <Link prefetch={false} key={subject.id} href={`/subjects/${subject.slug}`}>
-                      <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors h-full flex items-center">
-                        <h3 className="text-lg font-semibold tracking-tight">{subject.name}</h3>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <Card className="p-8 text-center text-muted-foreground">
-                  <p>No subjects available at the moment.</p>
-                </Card>
-              )}
-            </div>
+        <Suspense fallback={<HomeHeaderSkeleton />}>
+          <HomeHeader />
+        </Suspense>
 
-            <div className="mt-12 w-full text-left">
-              <h2 className="text-2xl font-bold tracking-tight mb-6">
-                Global Feed
-              </h2>
-              
-              <SortTabs />
+        <div className="mt-12 w-full text-left">
+          <h2 className="text-2xl font-bold tracking-tight mb-6">
+            Global Feed
+          </h2>
+          
+          <SortTabs />
 
-              <Suspense fallback={<QuestionListFallback />} key={`${currentSort}-${pageNumber}`}>
-                <GlobalFeed currentSort={currentSort} userId={user.id} pageNumber={pageNumber} pageSize={pageSize} />
-              </Suspense>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-semibold text-black dark:text-white">
-              Welcome to Project Forum
-            </h1>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              You are not signed in.
-            </p>
-            <div className="mt-4">
-              <Link prefetch={false}                 href="/login"
-                className="px-6 py-3 rounded-full bg-foreground text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium"
-              >
-                Go to Login
-              </Link>
-            </div>
-          </div>
-        )}
+          <Suspense fallback={<QuestionListFallback />} key={`${currentSort}-${pageNumber}`}>
+            <GlobalFeed currentSort={currentSort} pageNumber={pageNumber} pageSize={pageSize} />
+          </Suspense>
+        </div>
       </main>
     </div>
   )

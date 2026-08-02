@@ -20,14 +20,22 @@ function QuestionListFallback() {
   )
 }
 
-async function SubjectFeed({ subjectId, currentSort, userId, pageNumber, pageSize }: { subjectId: string, currentSort: string, userId: string | undefined, pageNumber: number, pageSize: number }) {
+async function SubjectFeed({ slug, currentSort, pageNumber, pageSize }: { slug: string, currentSort: string, pageNumber: number, pageSize: number }) {
   let questions: any[] = []
   let totalPages = 0
   
   try {
-    const feed = await getSubjectFeed(subjectId, currentSort, userId, pageNumber, pageSize)
-    questions = feed.questions
-    totalPages = Math.ceil(feed.totalCount / pageSize)
+    const supabase = await createClient()
+    const [{ data: { user } }, subject] = await Promise.all([
+      supabase.auth.getUser(),
+      getSubjectBySlug(slug)
+    ])
+    
+    if (subject) {
+      const feed = await getSubjectFeed(subject.id, currentSort, user?.id, pageNumber, pageSize)
+      questions = feed.questions
+      totalPages = Math.ceil(feed.totalCount / pageSize)
+    }
   } catch (error) {
     console.error(error)
   }
@@ -72,22 +80,7 @@ async function SubjectFeed({ subjectId, currentSort, userId, pageNumber, pageSiz
   )
 }
 
-export default async function SubjectPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ sort?: string; page?: string }>
-}) {
-  const { slug } = await params
-  const { sort, page } = await searchParams
-  const currentSort = sort || 'latest'
-  const pageNumber = parseInt(page || '1', 10)
-  const pageSize = 10
-  
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+async function SubjectHeader({ slug }: { slug: string }) {
   let subject = null;
   try {
     subject = await getSubjectBySlug(slug)
@@ -100,28 +93,61 @@ export default async function SubjectPage({
   }
 
   return (
+    <>
+      <div className="mb-8 flex justify-between items-center">
+        <Link prefetch={false} href="/" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          &larr; Back to Home
+        </Link>
+        <Link prefetch={false} 
+          href={`/subjects/${subject.slug}/ask`}
+          className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors text-sm font-medium"
+        >
+          Ask Question
+        </Link>
+      </div>
+      <h1 className="text-4xl font-bold tracking-tight mb-6">
+        {subject.name}
+      </h1>
+    </>
+  )
+}
+
+function SubjectHeaderSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mb-8 flex justify-between items-center">
+        <div className="h-5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+        <div className="h-9 w-32 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+      </div>
+      <div className="h-10 w-64 bg-zinc-200 dark:bg-zinc-800 rounded mb-6"></div>
+    </div>
+  )
+}
+
+export default async function SubjectPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ sort?: string; page?: string }>
+}) {
+  const { slug } = await params
+  const { sort, page } = await searchParams
+  const currentSort = sort || 'latest'
+  const pageNumber = parseInt(page || '1', 10)
+  const pageSize = 10
+
+  return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <div className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
-        <div className="mb-8 flex justify-between items-center">
-          <Link prefetch={false} href="/" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
-            &larr; Back to Home
-          </Link>
-          <Link prefetch={false} 
-            href={`/subjects/${subject.slug}/ask`}
-            className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded-md hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors text-sm font-medium"
-          >
-            Ask Question
-          </Link>
-        </div>
-        
-        <h1 className="text-4xl font-bold tracking-tight mb-6">
-          {subject.name}
-        </h1>
+        <Suspense fallback={<SubjectHeaderSkeleton />}>
+          <SubjectHeader slug={slug} />
+        </Suspense>
         
         <SortTabs />
         
         <Suspense fallback={<QuestionListFallback />} key={`${slug}-${currentSort}-${pageNumber}`}>
-          <SubjectFeed subjectId={subject.id} currentSort={currentSort} userId={user?.id} pageNumber={pageNumber} pageSize={pageSize} />
+          <SubjectFeed slug={slug} currentSort={currentSort} pageNumber={pageNumber} pageSize={pageSize} />
         </Suspense>
       </div>
     </div>

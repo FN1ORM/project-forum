@@ -20,14 +20,21 @@ function QuestionListFallback() {
   )
 }
 
-async function ProfileFeed({ id, currentTab, pageNumber, pageSize, currentUserId }: { id: string, currentTab: string, pageNumber: number, pageSize: number, currentUserId: string }) {
+async function ProfileFeed({ id, currentTab, pageNumber, pageSize }: { id: string, currentTab: string, pageNumber: number, pageSize: number }) {
+  const supabase = await createClient()
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+
+  if (!currentUser) {
+    redirect('/login')
+  }
+
   let questions: any[] = []
   let answers: any[] = []
   let totalCount = 0
 
   if (currentTab === 'questions') {
     try {
-      const feed = await getGlobalFeed('latest', currentUserId, pageNumber, pageSize, id)
+      const feed = await getGlobalFeed('latest', currentUser.id, pageNumber, pageSize, id)
       questions = feed.questions
       totalCount = feed.totalCount
     } catch (e) {
@@ -112,20 +119,7 @@ async function ProfileFeed({ id, currentTab, pageNumber, pageSize, currentUserId
   )
 }
 
-export default async function UserProfilePage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ tab?: string; page?: string }>
-}) {
-  const { id } = await params
-  const { tab, page } = await searchParams
-  
-  const currentTab = tab === 'answers' ? 'answers' : 'questions'
-  const pageNumber = parseInt(page || '1', 10)
-  const pageSize = 10
-
+async function ProfileHeader({ id }: { id: string }) {
   const supabase = await createClient()
   const { data: { user: currentUser } } = await supabase.auth.getUser()
   
@@ -152,30 +146,61 @@ export default async function UserProfilePage({
   const showRole = currentProfile?.role === 'admin'
 
   return (
+    <Card className="p-8">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight">{profile.display_name}</h1>
+          {showRole && (
+            <Badge variant="secondary" className="uppercase">
+              {profile.role}
+            </Badge>
+          )}
+          {profile.is_suspended && (
+            <Badge variant="destructive" className="uppercase">
+              Suspended
+            </Badge>
+          )}
+        </div>
+        {showEmail && (
+          <p className="text-lg text-muted-foreground">{profile.email}</p>
+        )}
+      </div>
+    </Card>
+  )
+}
+
+function ProfileHeaderSkeleton() {
+  return (
+    <Card className="p-8 animate-pulse">
+      <div className="flex flex-col gap-2">
+        <div className="h-9 w-48 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+        <div className="h-7 w-64 bg-zinc-200 dark:bg-zinc-800 rounded mt-1"></div>
+      </div>
+    </Card>
+  )
+}
+
+export default async function UserProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ tab?: string; page?: string }>
+}) {
+  const { id } = await params
+  const { tab, page } = await searchParams
+  
+  const currentTab = tab === 'answers' ? 'answers' : 'questions'
+  const pageNumber = parseInt(page || '1', 10)
+  const pageSize = 10
+
+  return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-8">
         
-        {/* Profile Header */}
-        <Card className="p-8">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{profile.display_name}</h1>
-              {showRole && (
-                <Badge variant="secondary" className="uppercase">
-                  {profile.role}
-                </Badge>
-              )}
-              {profile.is_suspended && (
-                <Badge variant="destructive" className="uppercase">
-                  Suspended
-                </Badge>
-              )}
-            </div>
-            {showEmail && (
-              <p className="text-lg text-muted-foreground">{profile.email}</p>
-            )}
-          </div>
-        </Card>
+        <Suspense fallback={<ProfileHeaderSkeleton />}>
+          <ProfileHeader id={id} />
+        </Suspense>
 
         {/* Tabs */}
         <div className="flex gap-4 border-b border-border pb-4 mt-4">
@@ -195,7 +220,7 @@ export default async function UserProfilePage({
 
         {/* Content */}
         <Suspense fallback={<QuestionListFallback />} key={`${currentTab}-${pageNumber}`}>
-          <ProfileFeed id={id} currentTab={currentTab} pageNumber={pageNumber} pageSize={pageSize} currentUserId={currentUser.id} />
+          <ProfileFeed id={id} currentTab={currentTab} pageNumber={pageNumber} pageSize={pageSize} />
         </Suspense>
       </main>
     </div>
