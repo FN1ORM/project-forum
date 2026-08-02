@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { getUserAndProfile } from '@/utils/data/user'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
 import { getGlobalFeed } from '@/utils/data/questions'
@@ -17,18 +17,14 @@ export default async function Home({
   const pageNumber = parseInt(page || '1', 10)
   const pageSize = 10
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user, profile } = await getUserAndProfile()
   
   let subjects: any[] = []
   let questions: any[] = []
   let totalPages = 0
-  let profile = null
 
   if (user) {
     try {
-      const { data } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
-      profile = data
       subjects = await getSubjects()
       const feed = await getGlobalFeed(currentSort, user.id, pageNumber, pageSize)
       questions = feed.questions

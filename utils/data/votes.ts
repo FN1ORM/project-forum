@@ -50,6 +50,27 @@ export async function hasUserUpvotedAnswer(answerId: string, userId: string) {
   return !!data
 }
 
+export async function hasUserUpvotedAnswers(answerIds: string[], userId: string) {
+  if (answerIds.length === 0) return {}
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('answer_votes')
+    .select('answer_id')
+    .in('answer_id', answerIds)
+    .eq('user_id', userId)
+  
+  if (error) {
+    throw new Error(`Failed to check answer upvotes: ${error.message}`)
+  }
+  
+  const upvotedMap: Record<string, boolean> = {}
+  for (const row of data || []) {
+    upvotedMap[row.answer_id] = true
+  }
+  return upvotedMap
+}
+
+
 export async function toggleQuestionUpvote(questionId: string, userId: string) {
   const hasVoted = await hasUserUpvotedQuestion(questionId, userId)
   const supabase = await createClient()

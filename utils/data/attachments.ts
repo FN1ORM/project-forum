@@ -93,6 +93,32 @@ export async function getAnswerAttachments(answerId: string) {
   return attachSignedUrls(data)
 }
 
+export async function getAnswersAttachments(answerIds: string[]) {
+  if (answerIds.length === 0) return {}
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('attachments')
+    .select('*')
+    .in('answer_id', answerIds)
+    .order('created_at', { ascending: true })
+    
+  if (error) throw new Error(error.message)
+  const withUrls = await attachSignedUrls(data || [])
+  
+  const map: Record<string, any[]> = {}
+  for (const id of answerIds) {
+    map[id] = []
+  }
+  for (const att of withUrls) {
+    if (att.answer_id) {
+      if (!map[att.answer_id]) map[att.answer_id] = []
+      map[att.answer_id].push(att)
+    }
+  }
+  return map
+}
+
+
 export async function getAttachmentById(attachmentId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase

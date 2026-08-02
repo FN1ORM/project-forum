@@ -1,9 +1,10 @@
 import { notFound, redirect } from 'next/navigation'
 import { getQuestionById, markQuestionSolved, deleteQuestion } from '@/utils/data/questions'
 import { getAnswersByQuestion, createAnswer, deleteAnswer } from '@/utils/data/answers'
-import { hasUserUpvotedQuestion, hasUserUpvotedAnswer, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
-import { getQuestionAttachments, getAnswerAttachments, createAttachment, deleteAttachment, getAttachmentById } from '@/utils/data/attachments'
+import { hasUserUpvotedQuestion, hasUserUpvotedAnswers, toggleQuestionUpvote, toggleAnswerUpvote } from '@/utils/data/votes'
+import { getQuestionAttachments, getAnswersAttachments, createAttachment, deleteAttachment, getAttachmentById } from '@/utils/data/attachments'
 import { createClient } from '@/utils/supabase/server'
+import { getUserAndProfile } from '@/utils/data/user'
 import Link from 'next/link'
 import { DeleteButton } from './delete-button'
 import { ValidatedForm } from '@/components/validated-form'
@@ -22,12 +23,13 @@ export default async function QuestionPage({
 }) {
   const { id } = await params
   
-  let question = null
-  try {
-    question = await getQuestionById(id)
-  } catch (error) {
-    console.error(error)
-  }
+  const [questionResult, userResult] = await Promise.allSettled([
+    getQuestionById(id),
+    getUserAndProfile()
+  ])
+  
+  const question = questionResult.status === 'fulfilled' ? questionResult.value : null
+  const { user, profile: userProfile } = userResult.status === 'fulfilled' ? userResult.value : { user: null, profile: null }
 
   if (!question) {
     notFound()
@@ -52,23 +54,18 @@ export default async function QuestionPage({
 
   const validQuestion = question as any
 
-  let answers: any[] = []
-  try {
-    answers = await getAnswersByQuestion(validQuestion.id)
-  } catch (error) {
-    console.error(error)
-  }
+  const [answersResult, questionAttachmentsResult, upvoteResult] = await Promise.allSettled([
+    getAnswersByQuestion(validQuestion.id),
+    getQuestionAttachments(validQuestion.id),
+    user ? hasUserUpvotedQuestion(validQuestion.id, user.id) : Promise.resolve(false)
+  ])
+
+  const answers = answersResult.status === 'fulfilled' ? (answersResult.value as any[]) : []
+  const questionAttachments = questionAttachmentsResult.status === 'fulfilled' ? questionAttachmentsResult.value : []
+  const hasUpvotedQuestion = upvoteResult.status === 'fulfilled' ? upvoteResult.value : false
 
   const subjectSlug = validQuestion.subjects?.slug
   const subjectName = validQuestion.subjects?.name
-
-  let userProfile: any = null;
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) {
-    const { data } = await supabase.from('profiles').select('id, role').eq('id', user.id).single()
-    userProfile = data;
-  }
 
   const hasPermission = userProfile && (
     validQuestion.author_id === userProfile.id || 
@@ -80,25 +77,15 @@ export default async function QuestionPage({
   const isTeacherOrAdmin = userProfile && (userProfile.role === 'teacher' || userProfile.role === 'admin');
   const canEditQuestion = (isAuthor && !validQuestion.is_solved) || isTeacherOrAdmin;
 
-  let hasUpvotedQuestion = false;
-  let userUpvotedAnswers: Record<string, boolean> = {};
-  if (user) {
-    hasUpvotedQuestion = await hasUserUpvotedQuestion(validQuestion.id, user.id)
-    await Promise.all(answers.map(async (a) => {
-      userUpvotedAnswers[a.id] = await hasUserUpvotedAnswer(a.id, user.id)
-    }))
-  }
-
-  let questionAttachments: any[] = []
-  let answerAttachmentsMap: Record<string, any[]> = {}
-  try {
-    questionAttachments = await getQuestionAttachments(validQuestion.id)
-    await Promise.all(answers.map(async (a) => {
-      answerAttachmentsMap[a.id] = await getAnswerAttachments(a.id)
-    }))
-  } catch (error) {
-    console.error(error)
-  }
+  const answerIds = answers.map(a => a.id)
+  
+  const [userUpvotedAnswersResult, answerAttachmentsMapResult] = await Promise.allSettled([
+    user && answerIds.length > 0 ? hasUserUpvotedAnswers(answerIds, user.id) : Promise.resolve({}),
+    answerIds.length > 0 ? getAnswersAttachments(answerIds) : Promise.resolve({})
+  ])
+  
+  const userUpvotedAnswers: Record<string, boolean> = userUpvotedAnswersResult.status === 'fulfilled' ? userUpvotedAnswersResult.value : {}
+  const answerAttachmentsMap: Record<string, any[]> = answerAttachmentsMapResult.status === 'fulfilled' ? answerAttachmentsMapResult.value : {}
 
   async function handleQuestionUpvote() {
     'use server'

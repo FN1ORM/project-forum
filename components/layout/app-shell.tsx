@@ -1,20 +1,16 @@
-import { createClient } from '@/utils/supabase/server'
+import { getUserAndProfile } from '@/utils/data/user'
 import { Sidebar } from './sidebar'
 import { TopNav } from './top-nav'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user, profile: rawProfile } = await getUserAndProfile()
   
   let profile = null
-  if (user) {
-    const { data } = await supabase.from('profiles').select('role, display_name').eq('id', user.id).single()
-    if (data) {
-      profile = {
-        email: user.email || '',
-        displayName: data.display_name,
-        role: data.role
-      }
+  if (user && rawProfile) {
+    profile = {
+      email: user.email || '',
+      displayName: rawProfile.display_name,
+      role: rawProfile.role
     }
   }
 
