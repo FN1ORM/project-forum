@@ -42,18 +42,19 @@ export default async function TeacherDashboard() {
 
   function renderQuestionCard(question: any) {
     return (
-      <Link key={question.id} href={`/questions/${question.id}`}>
-        <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+      <Card key={question.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+        <Link href={`/questions/${question.id}`} className="absolute inset-0 z-0" aria-label={question.title} />
+        <div className="relative z-10 pointer-events-none flex flex-col h-full">
           <div className="flex items-start justify-between gap-4 mb-2">
             <h3 className="text-lg font-semibold tracking-tight">{question.title}</h3>
             {question.is_solved && (
-              <Badge variant="success" className="shrink-0">
+              <Badge variant="success" className="shrink-0 pointer-events-auto">
                 ✓ Solved
               </Badge>
             )}
           </div>
-          <div className="text-sm text-muted-foreground mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-            <span>Asked by {question.author?.display_name}</span>
+          <div className="text-sm text-muted-foreground mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-2 pointer-events-auto">
+            <span>Asked by <Link href={`/users/${question.author_id}`} className="hover:underline text-foreground">{question.author?.display_name}</Link></span>
             <span className="hidden sm:inline">•</span>
             <span>Subject: {question.subjects?.name}</span>
             <span className="hidden sm:inline">•</span>
@@ -63,8 +64,8 @@ export default async function TeacherDashboard() {
             <span>▲ {question.voteCount}</span>
             <span>💬 {question.answerCount} Answers</span>
           </div>
-        </Card>
-      </Link>
+        </div>
+      </Card>
     )
   }
 

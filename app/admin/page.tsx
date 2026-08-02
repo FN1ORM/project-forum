@@ -129,7 +129,9 @@ export default async function AdminDashboard() {
             <tbody>
               {users.map(u => (
                 <tr key={u.id} className="border-b border-border last:border-0 hover:bg-surface-elevated/30 transition-colors">
-                  <td className="p-4 text-sm font-medium text-foreground">{u.display_name}</td>
+                  <td className="p-4 text-sm font-medium text-foreground">
+                    <Link href={`/users/${u.id}`} className="hover:underline">{u.display_name}</Link>
+                  </td>
                   <td className="p-4 text-sm text-muted-foreground">{u.email}</td>
                   <td className="p-4 text-sm text-muted-foreground capitalize">{u.role}</td>
                   <td className="p-4">

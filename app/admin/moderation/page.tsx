@@ -122,11 +122,15 @@ export default async function ModerationPage({
                       <div className="text-sm flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-muted-foreground">Reporter:</span>
-                          <span>{report.reporter?.display_name} ({report.reporter?.email})</span>
+                          <span>
+                            <Link href={`/users/${report.reporter_id}`} className="hover:underline">{report.reporter?.display_name}</Link> ({report.reporter?.email})
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">Target Author:</span>
-                          <span>{targetAuthor?.display_name} ({targetAuthor?.email})</span>
+                          <span>
+                            <Link href={`/users/${target?.author_id}`} className="hover:underline">{targetAuthor?.display_name}</Link> ({targetAuthor?.email})
+                          </span>
                           {isSuspended && <Badge variant="destructive" className="ml-2">Suspended</Badge>}
                         </div>
                       </div>

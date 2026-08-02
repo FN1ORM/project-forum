@@ -322,9 +322,9 @@ export default async function QuestionPage({
             )}
           </div>
           <div className="text-sm text-muted-foreground mb-6 flex flex-col gap-1">
-            <span>Asked by: {validQuestion.author?.display_name}</span>
+            <span>Asked by: <Link href={`/users/${validQuestion.author_id}`} className="hover:underline text-foreground">{validQuestion.author?.display_name}</Link></span>
             {validQuestion.is_solved && validQuestion.solver?.display_name && (
-              <span className="text-success font-medium">Solved by: {validQuestion.solver.display_name}</span>
+              <span className="text-success font-medium">Solved by: <Link href={`/users/${validQuestion.solver_id}`} className="hover:underline">{validQuestion.solver.display_name}</Link></span>
             )}
           </div>
           <p className="text-foreground whitespace-pre-wrap mb-6">
@@ -378,7 +378,7 @@ export default async function QuestionPage({
             answers.map((answer) => (
               <Card key={answer.id} className="p-6">
                 <div className="text-sm font-medium text-foreground mb-2">
-                  Answered by: {answer.author?.display_name}
+                  Answered by: <Link href={`/users/${answer.author_id}`} className="hover:underline">{answer.author?.display_name}</Link>
                 </div>
                 <p className="text-muted-foreground whitespace-pre-wrap">{answer.body}</p>
                 

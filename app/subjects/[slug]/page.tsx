@@ -69,26 +69,29 @@ export default async function SubjectPage({
         <div className="flex flex-col gap-4">
           {questions.length > 0 ? (
             questions.map((q) => (
-              <Link key={q.id} href={`/questions/${q.id}`}>
-                <Card className="p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+              <Card key={q.id} className="relative p-5 sm:p-6 hover:border-primary/50 hover:bg-surface-elevated/50 transition-colors">
+                <Link href={`/questions/${q.id}`} className="absolute inset-0 z-0" aria-label={q.title} />
+                <div className="relative z-10 pointer-events-none flex flex-col h-full">
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <h3 className="text-lg font-semibold tracking-tight">{q.title}</h3>
                     {q.is_solved && (
-                      <Badge variant="success" className="shrink-0">
+                      <Badge variant="success" className="shrink-0 pointer-events-auto">
                         ✓ Solved
                       </Badge>
                     )}
                   </div>
                   <p className="text-muted-foreground line-clamp-2">{q.body}</p>
                   <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Asked by {q.author?.display_name}</span>
+                    <div className="pointer-events-auto">
+                      <span>Asked by <Link href={`/users/${q.author_id}`} className="hover:underline text-foreground">{q.author?.display_name}</Link></span>
+                    </div>
                     <div className="flex items-center gap-4">
                       <span className="font-medium text-foreground">▲ {q.voteCount}</span>
                       <span>{new Date(q.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                </Card>
-              </Link>
+                </div>
+              </Card>
             ))
           ) : (
             <Card className="p-8 text-center text-muted-foreground">
