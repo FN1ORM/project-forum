@@ -1,4 +1,5 @@
 -- Install moddatetime extension if it doesn't exist
+CREATE SCHEMA IF NOT EXISTS extensions;
 CREATE EXTENSION IF NOT EXISTS moddatetime SCHEMA extensions;
 
 CREATE TABLE announcements (
