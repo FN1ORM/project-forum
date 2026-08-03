@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation'
 import { getAnnouncementById } from '@/utils/data/announcements'
 import { AnnouncementForm } from '@/components/teacher/AnnouncementForm'
 
-export default async function EditAnnouncementPage({ params }: { params: { id: string } }) {
+export default async function EditAnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
   try {
-    const announcement = await getAnnouncementById(params.id)
+    const { id } = await params
+    const announcement = await getAnnouncementById(id)
     
     return (
       <div className="flex flex-col gap-6">
