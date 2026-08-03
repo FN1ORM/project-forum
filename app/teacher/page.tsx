@@ -70,43 +70,39 @@ export default async function TeacherDashboard() {
   }
 
   return (
-    <div className="flex flex-col flex-1 bg-background text-foreground">
-      <main className="w-full max-w-5xl flex flex-col py-12 px-6 lg:px-8 lg:py-16 gap-12">
-        <h1 className="text-4xl font-bold tracking-tight">Teacher Dashboard</h1>
-        
-        <section className="flex flex-col gap-6">
-          <h2 className="text-2xl font-bold tracking-tight">Unsolved Questions</h2>
-          <div className="flex flex-col gap-4">
-            {unsolved.length > 0 ? unsolved.map(renderQuestionCard) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No unsolved questions.</p>
-              </Card>
-            )}
-          </div>
-        </section>
+    <>
+      <section className="flex flex-col gap-6">
+        <h2 className="text-2xl font-bold tracking-tight">Unsolved Questions</h2>
+        <div className="flex flex-col gap-4">
+          {unsolved.length > 0 ? unsolved.map(renderQuestionCard) : (
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No unsolved questions.</p>
+            </Card>
+          )}
+        </div>
+      </section>
 
-        <section className="flex flex-col gap-6">
-          <h2 className="text-2xl font-bold tracking-tight">Unanswered Questions</h2>
-          <div className="flex flex-col gap-4">
-            {unanswered.length > 0 ? unanswered.map(renderQuestionCard) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No unanswered questions.</p>
-              </Card>
-            )}
-          </div>
-        </section>
+      <section className="flex flex-col gap-6">
+        <h2 className="text-2xl font-bold tracking-tight">Unanswered Questions</h2>
+        <div className="flex flex-col gap-4">
+          {unanswered.length > 0 ? unanswered.map(renderQuestionCard) : (
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No unanswered questions.</p>
+            </Card>
+          )}
+        </div>
+      </section>
 
-        <section className="flex flex-col gap-6">
-          <h2 className="text-2xl font-bold tracking-tight">Recently Created Questions</h2>
-          <div className="flex flex-col gap-4">
-            {recent.length > 0 ? recent.map(renderQuestionCard) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No recent questions.</p>
-              </Card>
-            )}
-          </div>
-        </section>
-      </main>
-    </div>
+      <section className="flex flex-col gap-6">
+        <h2 className="text-2xl font-bold tracking-tight">Recently Created Questions</h2>
+        <div className="flex flex-col gap-4">
+          {recent.length > 0 ? recent.map(renderQuestionCard) : (
+            <Card className="p-8 text-center text-muted-foreground">
+              <p>No recent questions.</p>
+            </Card>
+          )}
+        </div>
+      </section>
+    </>
   )
 }
