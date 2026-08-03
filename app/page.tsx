@@ -3,7 +3,11 @@ import { getUserAndProfile } from '@/utils/data/user'
 import Link from 'next/link'
 import { getSubjects } from '@/utils/data/subjects'
 import { getGlobalFeed } from '@/utils/data/questions'
+import { getPinnedAnnouncements, getLatestAnnouncements } from '@/utils/data/announcements'
+import type { Announcement } from '@/utils/data/announcements'
 import { Card } from '@/components/ui/card'
+import { AnnouncementCard } from '@/components/announcements/AnnouncementCard'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { SortTabs } from '@/components/ui/sort-tabs'
 import { Pagination } from '@/components/ui/pagination'
@@ -15,6 +19,62 @@ function QuestionListFallback() {
       {Array.from({ length: 5 }).map((_, i) => (
         <QuestionCardSkeleton key={i} />
       ))}
+    </div>
+  )
+}
+
+function AnnouncementsFallback() {
+  return (
+    <div className="flex flex-col gap-4">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <Skeleton key={i} className="h-32 w-full rounded-xl" />
+      ))}
+    </div>
+  )
+}
+
+async function AnnouncementsSection() {
+  let pinned: Announcement[] = []
+  let unpinned: Announcement[] = []
+  
+  try {
+    const [p, l] = await Promise.all([
+      getPinnedAnnouncements(),
+      getLatestAnnouncements(3)
+    ])
+    pinned = p
+    unpinned = l
+  } catch (error) {
+    console.error(error)
+  }
+
+  // Filter out duplicates
+  const pinnedIds = new Set(pinned.map(a => a.id))
+  const displayUnpinned = unpinned.filter(a => !pinnedIds.has(a.id)).slice(0, 3)
+
+  const totalDisplayed = pinned.length + displayUnpinned.length
+
+  if (totalDisplayed === 0) {
+    return (
+      <Card className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
+        <p>No announcements yet.</p>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {pinned.map(a => (
+        <AnnouncementCard key={a.id} announcement={a} />
+      ))}
+      {displayUnpinned.map(a => (
+        <AnnouncementCard key={a.id} announcement={a} />
+      ))}
+      <div className="flex justify-end mt-2">
+        <Link prefetch={false} href="/announcements" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 text-primary">
+          View All Announcements →
+        </Link>
+      </div>
     </div>
   )
 }
@@ -173,6 +233,15 @@ export default async function Home({
         </Suspense>
 
         <div className="mt-12 w-full text-left">
+          <h2 className="text-2xl font-bold tracking-tight mb-6">
+            Announcements
+          </h2>
+          <Suspense fallback={<AnnouncementsFallback />}>
+            <AnnouncementsSection />
+          </Suspense>
+        </div>
+
+        <div className="mt-8 w-full text-left">
           <h2 className="text-2xl font-bold tracking-tight mb-6">
             Global Feed
           </h2>
