@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { AppShell } from "@/components/layout/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
         >
           <AppShell>{children}</AppShell>
         </ThemeProvider>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

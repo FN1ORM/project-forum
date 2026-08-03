@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,17 +9,13 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Pin, Link as LinkIcon, Plus, GripVertical, Trash2, Loader2, AlertCircle } from 'lucide-react'
 import { createAnnouncementAction, updateAnnouncementAction } from '@/app/actions/announcements'
+import { toast } from 'sonner'
+import type { AnnouncementResource, Announcement } from '@/utils/data/announcements'
 
-type Resource = { id: string; label: string; url: string }
+type Resource = AnnouncementResource & { id: string }
 
 interface AnnouncementFormProps {
-  initialData?: {
-    id: string
-    title: string
-    message: string
-    is_pinned: boolean
-    resources: any[]
-  }
+  initialData?: Announcement
 }
 
 function generateId() {
@@ -137,9 +133,11 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
     if (result.error) {
       setErrorMsg(result.error)
+      toast.error('Failed to save announcement')
       setIsSubmitting(false)
     } else {
       setIsDirty(false)
+      toast.success(isEditing ? 'Announcement updated' : 'Announcement published')
       // Navigate back to announcements list
       router.push('/teacher/announcements')
     }
@@ -160,8 +158,9 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Title</label>
+            <label htmlFor="title-input" className="text-sm font-medium">Title</label>
             <Input 
+              id="title-input"
               value={title} 
               onChange={e => { setTitle(e.target.value); markDirty() }} 
               placeholder="e.g. Week 1 Notes Released" 
@@ -172,8 +171,9 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Message</label>
+            <label htmlFor="message-input" className="text-sm font-medium">Message</label>
             <Textarea 
+              id="message-input"
               value={message} 
               onChange={e => { setMessage(e.target.value); markDirty() }} 
               placeholder="Write your announcement here..." 
@@ -193,8 +193,9 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
             </div>
             
             {resources.length === 0 ? (
-              <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md bg-background/50">
-                No resources added.
+              <div className="flex flex-col items-center justify-center gap-1 text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-md bg-background/50">
+                <span className="font-medium text-foreground">No resources added</span>
+                <span>Add links to external documents, slides, or websites.</span>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -218,6 +219,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                       <div className="flex-1 flex flex-col gap-3">
                         <div className="flex flex-col gap-1">
                           <Input 
+                            aria-label={`Label for resource ${index + 1}`}
                             value={res.label} 
                             onChange={(e) => handleResourceChange(res.id, 'label', e.target.value)}
                             placeholder="Label (e.g. Week 1 Slides)" 
@@ -226,6 +228,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         </div>
                         <div className="flex flex-col gap-1">
                           <Input 
+                            aria-label={`URL for resource ${index + 1}`}
                             value={res.url} 
                             onChange={(e) => handleResourceChange(res.id, 'url', e.target.value)}
                             placeholder="URL (https://...)" 
@@ -234,7 +237,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         </div>
                       </div>
 
-                      <Button type="button" variant="ghost" className="mt-1 h-8 w-8 px-0 text-destructive hover:bg-destructive/10" onClick={() => handleRemoveResource(res.id)}>
+                      <Button type="button" variant="ghost" className="mt-1 h-8 w-8 px-0 text-destructive hover:bg-destructive/10" aria-label={`Remove resource ${index + 1}`} onClick={() => handleRemoveResource(res.id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

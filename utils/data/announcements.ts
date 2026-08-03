@@ -1,5 +1,26 @@
 import { createClient } from '@/utils/supabase/server'
 
+export interface AnnouncementResource {
+  label: string
+  url: string
+}
+
+export interface AnnouncementAuthor {
+  display_name: string
+}
+
+export interface Announcement {
+  id: string
+  title: string
+  message: string
+  resources: AnnouncementResource[]
+  author_id: string
+  is_pinned: boolean
+  created_at: string
+  updated_at: string
+  author?: AnnouncementAuthor | null
+}
+
 const selectFields = 'id, title, message, resources, author_id, is_pinned, created_at, updated_at, author:profiles!author_id(display_name)'
 
 export async function getPinnedAnnouncements() {
@@ -11,7 +32,7 @@ export async function getPinnedAnnouncements() {
     .order('created_at', { ascending: false })
 
   if (error) throw new Error(`Failed to fetch pinned announcements: ${error.message}`)
-  return data
+  return data as unknown as Announcement[]
 }
 
 export async function getLatestAnnouncements(limit: number = 3) {
@@ -24,7 +45,7 @@ export async function getLatestAnnouncements(limit: number = 3) {
     .limit(limit)
 
   if (error) throw new Error(`Failed to fetch latest announcements: ${error.message}`)
-  return data
+  return data as unknown as Announcement[]
 }
 
 export async function getAllAnnouncements(pageNumber: number = 1, pageSize: number = 10) {
@@ -41,7 +62,7 @@ export async function getAllAnnouncements(pageNumber: number = 1, pageSize: numb
   if (error) throw new Error(`Failed to fetch all announcements: ${error.message}`)
   
   return {
-    announcements: data,
+    announcements: data as unknown as Announcement[],
     totalCount: count || 0
   }
 }
@@ -55,10 +76,10 @@ export async function getAnnouncementById(id: string) {
     .single()
 
   if (error) throw new Error(`Failed to fetch announcement: ${error.message}`)
-  return data
+  return data as unknown as Announcement
 }
 
-export async function createAnnouncement(authorId: string, title: string, message: string, resources: any[], isPinned: boolean = false) {
+export async function createAnnouncement(authorId: string, title: string, message: string, resources: AnnouncementResource[], isPinned: boolean = false) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('announcements')
@@ -73,10 +94,10 @@ export async function createAnnouncement(authorId: string, title: string, messag
     .single()
 
   if (error) throw new Error(`Failed to create announcement: ${error.message}`)
-  return data
+  return data as unknown as Announcement
 }
 
-export async function updateAnnouncement(id: string, title: string, message: string, resources: any[], isPinned: boolean) {
+export async function updateAnnouncement(id: string, title: string, message: string, resources: AnnouncementResource[], isPinned: boolean) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('announcements')
@@ -91,7 +112,7 @@ export async function updateAnnouncement(id: string, title: string, message: str
     .single()
 
   if (error) throw new Error(`Failed to update announcement: ${error.message}`)
-  return data
+  return data as unknown as Announcement
 }
 
 export async function deleteAnnouncement(id: string) {

@@ -4,19 +4,22 @@ import Link from 'next/link'
 import { getPinnedAnnouncements, getAllAnnouncements } from '@/utils/data/announcements'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Pin, Trash2, Edit2, Link as LinkIcon, AlertCircle } from 'lucide-react'
 import { AnnouncementActions } from './announcement-actions'
+import type { Announcement } from '@/utils/data/announcements'
 
 function isNew(dateStr: string) {
   const date = new Date(dateStr)
   const now = new Date()
-  const diffTime = Math.abs(now.getTime() - date.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const diffTime = now.getTime() - date.getTime()
+  if (diffTime < 0) return false // Future date
+  const diffDays = diffTime / (1000 * 60 * 60 * 24)
   return diffDays <= 7
 }
 
-function AnnouncementCard({ announcement }: { announcement: any }) {
+function AnnouncementCard({ announcement }: { announcement: Announcement }) {
   return (
     <Card className="flex flex-col gap-4 p-5 sm:p-6 transition-colors hover:border-primary/50 relative group">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -114,7 +117,7 @@ export default function TeacherAnnouncementsPage({ searchParams }: { searchParam
       <Suspense fallback={
         <div className="flex flex-col gap-4">
           {[1, 2, 3].map(i => (
-            <Card key={i} className="p-6 h-40 animate-pulse bg-surface-elevated/50" />
+            <Skeleton key={i} className="h-40 w-full rounded-xl" />
           ))}
         </div>
       }>
