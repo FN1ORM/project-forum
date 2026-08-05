@@ -50,9 +50,11 @@ export function AnnouncementCard({ announcement, actions }: AnnouncementCardProp
         )}
       </div>
 
-      <div className="text-sm text-foreground/90 whitespace-pre-wrap">
-        {announcement.message}
-      </div>
+      {announcement.message && announcement.message.trim().length > 0 && (
+        <div className="text-sm text-foreground/90 whitespace-pre-wrap">
+          {announcement.message}
+        </div>
+      )}
 
       {announcement.resources && announcement.resources.length > 0 && (
         <div className="flex flex-col gap-2 mt-2 pt-4 border-t border-border/50">

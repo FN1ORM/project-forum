@@ -48,7 +48,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
   // Validation state
   const titleValid = title.trim().length > 0 && title.trim().length <= 200
-  const messageValid = message.trim().length > 0 && message.trim().length <= 2000
+  const messageValid = message.trim().length <= 2000
   const resourcesValid = resources.every(r => r.label.trim().length > 0 && isValidUrl(r.url))
   
   const isValid = titleValid && messageValid && resourcesValid

@@ -67,7 +67,7 @@ export async function createAnnouncementAction(payload: AnnouncementPayload) {
     
     if (!title || title.length === 0) return { error: 'Title is required' }
     if (title.length > 200) return { error: 'Title must be under 200 characters' }
-    if (!message || message.length === 0) return { error: 'Message is required' }
+// message is optional
     
     let validatedResources: Resource[] = []
     try {
@@ -100,7 +100,7 @@ export async function updateAnnouncementAction(id: string, payload: Announcement
     
     if (!title || title.length === 0) return { error: 'Title is required' }
     if (title.length > 200) return { error: 'Title must be under 200 characters' }
-    if (!message || message.length === 0) return { error: 'Message is required' }
+// message is optional
     
     let validatedResources: Resource[] = []
     try {
