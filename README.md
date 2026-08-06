@@ -23,6 +23,13 @@ Project Forum is an exclusive, academic discussion platform built to bridge the 
 - **Google OAuth**: Fast and secure single sign-on.
 - **IIITG Email Restriction**: Platform access is strictly ring-fenced to authorized institutional email addresses.
 
+### Teacher Announcements
+- **Course Portal**: A dedicated platform for teachers to publish announcements, share resources, and post updates.
+- **Rich Resources**: Share Google Drive links, practice sheets, and important documents.
+- **Pinning**: Teachers can pin important announcements to the top of the feed for maximum visibility.
+- **Teacher Dashboard**: Comprehensive announcement management system for faculty.
+- **Student Integration**: Seamlessly embedded into the homepage and dedicated `/announcements` archive.
+
 ### Forum
 - **Subjects**: Content is cleanly categorized into dedicated academic subjects.
 - **Questions**: Detailed academic question boards.
@@ -128,6 +135,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] User Profiles
 - [x] Reporting System & Moderation
 - [x] Production Security Hardening
+- [x] Teacher Announcement System
 - [ ] Notifications
 - [ ] UI Polish
 - [ ] Production Deployment
